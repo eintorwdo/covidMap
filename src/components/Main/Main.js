@@ -9,7 +9,7 @@ const mapStyle = () => {
         opacity: 1,
         color: 'black',
         fillColor: 'white',
-        fillOpacity: 0.8
+        fillOpacity: 0.85
     };
 }
 
@@ -30,13 +30,15 @@ const fetchCovidData = async () => {
     return json;
 }
 
-const componentToHex = (c) => {
-    var hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-}
-  
-const rgbToHex = (r, g, b) => {
-    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+const getColor = (numOfCases) => {
+    let color;
+    if(numOfCases == 0) color = '#ffffff';
+    else if(numOfCases < 100) color = '#ffbfbf';
+    else if(numOfCases < 500) color = '#ff9999';
+    else if(numOfCases < 1200) color = '#ff8080';
+    else if(numOfCases < 4000) color = '#ff4a4a';
+    else color = '#ff0000';
+    return color;
 }
 
 const onEachFeature = (covidData) => {
@@ -45,21 +47,16 @@ const onEachFeature = (covidData) => {
             mouseover: thickenBorder,
             mouseout: mouseOut
         });
-
         const countryData = covidData.Countries.find(el => {
             const name = el.Country;
-            return name.includes(feature.properties.admin);
+            return name.includes(feature.properties.name) ||
+                    name.includes(feature.properties.formal_en);
         });
-        
-        console.log(feature.properties);
 
         if(countryData){
+            console.log(countryData)
             const newCases = countryData.NewConfirmed;
-            const r = 255;
-            const g = Math.round(Math.min(1 / (newCases/2000), 1) * 255);
-            const b = Math.round(Math.min(1 / (newCases/2000), 1) * 255);
-            const hex = rgbToHex(r, g, b);
-            layer.setStyle({fillColor: hex});
+            layer.setStyle({fillColor: getColor(newCases)});
         }
     }
 }
@@ -87,7 +84,7 @@ export default function Main(){
 
             map.setMaxBounds(bounds);
 
-            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=', {
+            L.tileLayer(`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${process.env.MAPBOX_TOKEN}`, {
                 attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
                 minZoom: 2,
                 maxZoom: 18,

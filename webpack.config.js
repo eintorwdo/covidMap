@@ -1,5 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const dotenv = require('dotenv');
+const result = dotenv.config().parsed;
 
 module.exports = {
     mode: 'development',
@@ -20,6 +23,7 @@ module.exports = {
             },
             {
                 test: /\.css$/i,
+                exclude: /node_modules/,
                 use: ['style-loader', {
                     loader: 'css-loader',
                     options: {
@@ -31,5 +35,8 @@ module.exports = {
             }
         ]
     },
-    plugins: [new HtmlWebpackPlugin({template: path.resolve(__dirname, 'src', 'index.html')})]
+    plugins: [
+        new HtmlWebpackPlugin({template: path.resolve(__dirname, 'src', 'index.html')}),
+        new webpack.DefinePlugin({'process.env.MAPBOX_TOKEN': JSON.stringify(result.MAPBOX_TOKEN)})
+    ]
 };
