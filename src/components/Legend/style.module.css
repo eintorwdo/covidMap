@@ -1,0 +1,38 @@
+.legend{
+    z-index: 1000;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 50px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.904);
+    -webkit-box-shadow: 0px 0px 7px 1px rgba(46, 46, 46, 0.75);
+    -moz-box-shadow: 0px 0px 7px 1px rgba(48, 48, 48, 0.75);
+    box-shadow: 0px 0px 7px 1px rgba(46, 46, 46, 0.75);
+}
+
+.legend-list li{
+    display: flex;
+    align-items: center;
+}
+
+.legend .legend-list{
+    list-style: none;
+    padding: 0;
+    font-size: 1rem;
+    margin: 5px 0;
+}
+
+.legend h2{
+    font-size: 1.2rem!important;
+    font-weight: 100;
+    margin: 5px 0;
+}
+
+.legend-list i{
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 5px;
+}

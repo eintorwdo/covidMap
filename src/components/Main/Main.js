@@ -1,7 +1,9 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import style from './style.module.css';
 import geoDataJson from '../../custom.geo.json';
+import Legend from '../Legend/Legend';
 
+import {getColor} from '../../common/common';
 
 const mapStyle = () => {
     return {
@@ -30,17 +32,6 @@ const fetchCovidData = async () => {
     return json;
 }
 
-const getColor = (numOfCases) => {
-    let color;
-    if(numOfCases == 0) color = '#ffffff';
-    else if(numOfCases < 100) color = '#ffbfbf';
-    else if(numOfCases < 500) color = '#ff9999';
-    else if(numOfCases < 1200) color = '#ff8080';
-    else if(numOfCases < 4000) color = '#ff4a4a';
-    else color = '#ff0000';
-    return color;
-}
-
 const onEachFeature = (covidData) => {
     return (feature, layer) => {
         layer.on({
@@ -54,7 +45,6 @@ const onEachFeature = (covidData) => {
         });
 
         if(countryData){
-            console.log(countryData)
             const newCases = countryData.NewConfirmed;
             layer.setStyle({fillColor: getColor(newCases)});
         }
@@ -64,6 +54,7 @@ const onEachFeature = (covidData) => {
 export default function Main(){
     const [geoData, setGeoData] = useState(geoDataJson);
     const [covidData, setCovidData] = useState(null);
+    const mapRef = useRef(null);
 
     if(!covidData){
         (async () => {
@@ -77,12 +68,11 @@ export default function Main(){
     useEffect(() => {
         const selector = `.${style['map-container']}`;
         const el = document.querySelector(selector);
-        let map;
-        if(el){
-            map = L.map(el).setView([51.505, -0.09], 2);
-            let bounds = map.getBounds();
+        if(el && !mapRef.current){
+            mapRef.current = L.map(el).setView([51.505, -0.09], 2);
+            let bounds = mapRef.current.getBounds();
 
-            map.setMaxBounds(bounds);
+            mapRef.current.setMaxBounds(bounds);
 
             L.tileLayer(`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${process.env.MAPBOX_TOKEN}`, {
                 attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -97,16 +87,22 @@ export default function Main(){
                     [-90, -180],
                     [90, 180]
                 ]
-            }).addTo(map);
+            }).addTo(mapRef.current);
         }
+    });
 
-        if(geoData && covidData){
+    useEffect(() => {
+        if(geoData && covidData && mapRef.current){
             L.geoJSON(geoData, {
                 style: mapStyle,
                 onEachFeature: onEachFeature(covidData)
-            }).addTo(map);
+            }).addTo(mapRef.current);
         }
-    }, [covidData]);
+    }, [covidData, geoData]);
 
-    return covidData ? <div className={style['map-container']}></div> : '';
+    return(
+        <div className={style['map-container']} style={{position: 'relative'}}>
+            <Legend />
+        </div>
+    );
 }
