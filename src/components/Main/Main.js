@@ -34,25 +34,27 @@ const fetchCovidData = async () => {
 
 const onEachFeature = (covidData) => {
     return (feature, layer) => {
+
         layer.on({
             mouseover: thickenBorder,
             mouseout: mouseOut
         });
-        const countryData = covidData.Countries.find(el => {
-            const name = el.Country;
+
+        const country = covidData.Countries.find(el => {
+            const name = el.Country;  
             return name.includes(feature.properties.name) ||
-                    name.includes(feature.properties.formal_en);
+                    name.includes(feature.properties.formal_en) ||
+                    el.CountryCode == feature.properties.iso_a2;
         });
 
-        if(countryData){
-            const newCases = countryData.NewConfirmed;
+        if(country){
+            const newCases = country.NewConfirmed;
             layer.setStyle({fillColor: getColor(newCases)});
         }
     }
 }
 
 export default function Main(){
-    const [geoData, setGeoData] = useState(geoDataJson);
     const [covidData, setCovidData] = useState(null);
     const mapRef = useRef(null);
 
@@ -68,37 +70,32 @@ export default function Main(){
     useEffect(() => {
         const selector = `.${style['map-container']}`;
         const el = document.querySelector(selector);
+
         if(el && !mapRef.current){
-            mapRef.current = L.map(el).setView([51.505, -0.09], 2);
-            let bounds = mapRef.current.getBounds();
+            mapRef.current = L.map(el, {minZoom: 2}).setView([51.505, -0.09], 2);
+            mapRef.current.setMaxBounds(mapRef.current.getBounds());
+            mapRef.current.createPane('labels');
+            mapRef.current.getPane('labels').style.zIndex = 650;
 
-            mapRef.current.setMaxBounds(bounds);
-
-            L.tileLayer(`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${process.env.MAPBOX_TOKEN}`, {
-                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                minZoom: 2,
-                maxZoom: 18,
-                id: 'mapbox/outdoors-v11',
-                tileSize: 512,
-                zoomOffset: -1,
-                accessToken: 'your.mapbox.access.token',
-                noWrap: true,
-                bounds: [
-                    [-90, -180],
-                    [90, 180]
-                ]
+            L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
+                attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                subdomains: 'abcd',
+                minZoom: 0,
+                maxZoom: 20,
+                ext: 'png',
+                pane: 'labels'
             }).addTo(mapRef.current);
         }
     });
 
     useEffect(() => {
-        if(geoData && covidData && mapRef.current){
-            L.geoJSON(geoData, {
+        if(geoDataJson && covidData && mapRef.current){
+            L.geoJSON(geoDataJson, {
                 style: mapStyle,
                 onEachFeature: onEachFeature(covidData)
             }).addTo(mapRef.current);
         }
-    }, [covidData, geoData]);
+    }, [covidData]);
 
     return(
         <div className={style['map-container']} style={{position: 'relative'}}>

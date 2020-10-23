@@ -7,22 +7,23 @@ export default function Legend(){
 
     useEffect(() => {
         const cases = [0, 99, 499, 1199, 3999];
+        
         labelsRef.current = cases.map((el, i) => {
             if(i == 0){
                 return <li key={i}><i style={{backgroundColor: getColor(el)}}></i>{el}</li>;
             }
             else if(i == cases.length - 1){
                 return(
-                    <div>
+                    <>
                         <li key={i}>
                             <i style={{backgroundColor: getColor(el)}}></i>
                             {cases[i-1] + 1} - {el}
                         </li>
-                        <li key={i}>
+                        <li key={i+1}>
                             <i style={{backgroundColor: getColor(el+1)}}></i>
                             &gt; {el}
                         </li>
-                    </div>
+                    </>
                 );
             }
             return(
@@ -33,7 +34,6 @@ export default function Legend(){
             );
         });
 
-        console.log(labelsRef.current)
     }, []);
 
     return labelsRef.current ? (
