@@ -15,16 +15,22 @@ const mapStyle = () => {
     };
 }
 
-const thickenBorder = (e) => {
-    e.target.setStyle({
-        weight: 5
-    });
+const thickenBorder = (setCountry, country) => {
+    return (e) => {
+        e.target.setStyle({
+            weight: 5
+        });
+        setCountry(country);
+    }
 }
 
-const mouseOut = (e) => {
-    const stl = mapStyle();
-    delete stl.fillColor;
-    e.target.setStyle(stl);
+const mouseOut = (setCountry) => {
+    return (e) => {
+        const stl = mapStyle();
+        delete stl.fillColor;
+        e.target.setStyle(stl);
+        setCountry(null);
+    }
 }
 
 const fetchCovidData = async () => {
@@ -32,13 +38,8 @@ const fetchCovidData = async () => {
     return json;
 }
 
-const onEachFeature = (covidData) => {
+const onEachFeature = (covidData, setCountry) => {
     return (feature, layer) => {
-
-        layer.on({
-            mouseover: thickenBorder,
-            mouseout: mouseOut
-        });
 
         const country = covidData.Countries.find(el => {
             const name = el.Country;  
@@ -51,11 +52,17 @@ const onEachFeature = (covidData) => {
             const newCases = country.NewConfirmed;
             layer.setStyle({fillColor: getColor(newCases)});
         }
+
+        layer.on({
+            mouseover: thickenBorder(setCountry, {covid: country, feature: feature.properties}),
+            mouseout: mouseOut(setCountry)
+        });
     }
 }
 
 export default function Main(){
     const [covidData, setCovidData] = useState(null);
+    const [country, setCountry] = useState(null);
     const mapRef = useRef(null);
 
     if(!covidData){
@@ -73,7 +80,7 @@ export default function Main(){
 
         if(el && !mapRef.current){
             mapRef.current = L.map(el, {minZoom: 2}).setView([51.505, -0.09], 2);
-            mapRef.current.setMaxBounds(mapRef.current.getBounds());
+            // mapRef.current.setMaxBounds(mapRef.current.getBounds());
             mapRef.current.createPane('labels');
             mapRef.current.getPane('labels').style.zIndex = 650;
 
@@ -82,6 +89,8 @@ export default function Main(){
                 subdomains: 'abcd',
                 minZoom: 0,
                 maxZoom: 20,
+                bounds: [[-90, -180],[90, 180]],
+                noWrap: true,
                 ext: 'png',
                 pane: 'labels'
             }).addTo(mapRef.current);
@@ -92,14 +101,14 @@ export default function Main(){
         if(geoDataJson && covidData && mapRef.current){
             L.geoJSON(geoDataJson, {
                 style: mapStyle,
-                onEachFeature: onEachFeature(covidData)
+                onEachFeature: onEachFeature(covidData, setCountry)
             }).addTo(mapRef.current);
         }
     }, [covidData]);
 
     return(
         <div className={style['map-container']} style={{position: 'relative'}}>
-            <Legend />
+            <Legend country={country}/>
         </div>
     );
 }
