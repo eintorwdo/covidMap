@@ -11,3 +11,8 @@
     border-radius:0px;
     box-shadow: 0 0px 0px;
 }
+
+.header{
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+}

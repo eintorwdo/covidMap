@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import style from './style.module.css';
 import geoDataJson from '../../custom.geo.json';
 import Legend from '../Legend/Legend';
-
+import {ModeContext} from '../../providers/providers';
 import {getColor} from '../../common/common';
 
 const mapStyle = () => {
@@ -38,9 +38,8 @@ const fetchCovidData = async () => {
     return json;
 }
 
-const onEachFeature = (covidData, setCountry) => {
+const onEachFeature = (covidData, setCountry, mode) => {
     return (feature, layer) => {
-
         const country = covidData.Countries.find(el => {
             const name = el.Country;  
             return name.includes(feature.properties.name) ||
@@ -49,8 +48,7 @@ const onEachFeature = (covidData, setCountry) => {
         });
 
         if(country){
-            const newCases = country.NewConfirmed;
-            layer.setStyle({fillColor: getColor(newCases)});
+            layer.setStyle({fillColor: getColor(country, mode)});
         }
 
         layer.on({
@@ -60,10 +58,13 @@ const onEachFeature = (covidData, setCountry) => {
     }
 }
 
-export default function Main(){
+function Main(){
     const [covidData, setCovidData] = useState(null);
     const [country, setCountry] = useState(null);
     const mapRef = useRef(null);
+    const geoJsonRef = useRef(null);
+
+    const {mode} = useContext(ModeContext);
 
     if(!covidData){
         (async () => {
@@ -99,16 +100,49 @@ export default function Main(){
 
     useEffect(() => {
         if(geoDataJson && covidData && mapRef.current){
-            L.geoJSON(geoDataJson, {
+            geoJsonRef.current = L.geoJSON(geoDataJson, {
                 style: mapStyle,
-                onEachFeature: onEachFeature(covidData, setCountry)
+                onEachFeature: onEachFeature(covidData, setCountry, mode)
             }).addTo(mapRef.current);
         }
     }, [covidData]);
 
+    useEffect(() => {
+        geoJsonRef.current?.eachLayer((layer) => {
+            const country = covidData?.Countries.find(el => {
+                const name = el.Country;  
+                return name.includes(layer.feature.properties.name) ||
+                        name.includes(layer.feature.properties.formal_en) ||
+                        el.CountryCode == layer.feature.properties.iso_a2;
+            });
+            if(country){
+                layer.setStyle({fillColor: getColor(country, mode)});
+            }
+            else{
+                layer.setStyle({fillColor: 'white'});
+            }
+        });
+    }, [mode]);
+
     return(
+        <>
+        <h1 className={style.header}>COVID-19 dashboard</h1>
         <div className={style['map-container']} style={{position: 'relative'}}>
             <Legend country={country}/>
         </div>
+        </>
+    );
+}
+
+export default function Map(){
+    const [mode, setMode] = useState('cases');
+
+    return(
+        <ModeContext.Provider value={{
+            mode,
+            setMode
+        }}>
+            <Main />
+        </ModeContext.Provider>
     );
 }

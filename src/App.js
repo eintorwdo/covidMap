@@ -6,7 +6,7 @@ import {
   Link
 } from "react-router-dom";
 
-import Main from './components/Main/Main';
+import Map from './components/Main/Main';
 
 export default function App(){
     return(
@@ -14,7 +14,7 @@ export default function App(){
             <div>
                 <Switch>
                     <Route path="/">
-                        <Main />
+                        <Map />
                     </Route>
                 </Switch>
             </div>

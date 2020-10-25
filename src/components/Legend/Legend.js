@@ -1,42 +1,64 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import style from './style.module.css';
 import {getColor} from '../../common/common';
+import {ModeContext} from '../../providers/providers';
 
 export default function Legend(props){
-    const labelsRef = useRef(null);
-    const legendRef = useRef(null);
+    const [labels, setLabels] = useState(null);
     const [covidInfo, setCovidInfo] = useState(null);
+    const legendRef = useRef(null);
+
+    const {mode, setMode} = useContext(ModeContext);
 
     useEffect(() => {
-        const cases = [0, 99, 499, 1199, 3999];
+        let cases;
+        let labels;
+
+        if(mode == 'cases'){
+            cases = [0, 99, 499, 1199, 3999];
+            labels = cases.map((el) => {
+                return {
+                    NewConfirmed: el
+                }
+            });
+        }
+        else if(mode == 'deaths'){
+            cases = [0, 49, 99, 199, 499];
+            labels = cases.map((el) => {
+                return {
+                    NewDeaths: el
+                }
+            });
+        }
         
-        labelsRef.current = cases.map((el, i) => {
+        const newLabels = labels.map((el, i) => {
             if(i == 0){
-                return <li key={i}><i style={{backgroundColor: getColor(el)}}></i>{el}</li>;
+                return <li key={i}><i style={{backgroundColor: getColor(el, mode)}}></i>{cases[i]}</li>;
             }
             else if(i == cases.length - 1){
                 return(
                     <>
                         <li key={i}>
-                            <i style={{backgroundColor: getColor(el)}}></i>
-                            {cases[i-1] + 1} - {el}
+                            <i style={{backgroundColor: getColor(el, mode)}}></i>
+                            {cases[i-1] + 1} - {cases[i]}
                         </li>
                         <li key={i+1}>
-                            <i style={{backgroundColor: getColor(el+1)}}></i>
-                            &gt; {el}
+                            <i style={{backgroundColor: getColor(labels[i]+1, mode)}}></i>
+                            &gt; {cases[i]}
                         </li>
                     </>
                 );
             }
             return(
                 <li key={i}>
-                    <i style={{backgroundColor: getColor(el)}}></i>
-                    {cases[i-1] + 1} - {el}
+                    <i style={{backgroundColor: getColor(el, mode)}}></i>
+                    {cases[i-1] + 1} - {cases[i]}
                 </li>
             );
         });
+        setLabels(newLabels);
 
-    }, []);
+    }, [mode]);
 
     useEffect(() => {
         const info = props.country ?
@@ -64,15 +86,34 @@ export default function Legend(props){
         setCovidInfo(info);
     }, [props.country]);
 
-    return labelsRef.current ? (
-        <div className={style.legend}>
+    return labels ? (
+        <>
+        <div className={style['bottom-left']}>
+            <div className={style['legend-inner']} style={{textAlign: 'center'}}>
+                <h2>Show:</h2>
+                <div className={style.button}>
+                    <h3 onClick={() => {setMode('cases')}}
+                        className={`${style['button-inner']} ${mode == 'cases' ? style.active : ''}`}>
+                        Cases
+                    </h3>
+                </div>
+                <div className={style.button}>
+                    <h3 onClick={() => {setMode('deaths')}}
+                        className={`${style['button-inner']} ${mode == 'deaths' ? style.active : ''}`}>
+                        Deaths
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div className={style['bottom-right']}>
             {covidInfo}
             <div ref={legendRef} className={style['legend-inner']}>
-                <h2>Cases</h2>
+                <h2>Newly reported {mode}</h2>
                 <ul className={style['legend-list']}>
-                    {labelsRef.current}
+                    {labels}
                 </ul>
             </div>
         </div>
+        </>
     ) : '';
 }
