@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
 import style from './style.module.css';
-import geoDataJson from '../../custom.geo.json';
+// import geoData from '../../custom.geo.json';
 import Legend from '../Legend/Legend';
 import {ModeContext} from '../../providers/providers';
 import {getColor} from '../../common/common';
@@ -15,7 +15,7 @@ const mapStyle = () => {
     };
 }
 
-const thickenBorder = (setCountry, country) => {
+const mouseOver = (setCountry, country) => {
     return (e) => {
         e.target.setStyle({
             weight: 5
@@ -40,7 +40,7 @@ const fetchCovidData = async () => {
 
 const onEachFeature = (covidData, setCountry, mode) => {
     return (feature, layer) => {
-        const country = covidData.Countries.find(el => {
+        const country = covidData?.Countries.find(el => {
             const name = el.Country;  
             return name.includes(feature.properties.name) ||
                     name.includes(feature.properties.formal_en) ||
@@ -52,7 +52,7 @@ const onEachFeature = (covidData, setCountry, mode) => {
         }
 
         layer.on({
-            mouseover: thickenBorder(setCountry, {covid: country, feature: feature.properties}),
+            mouseover: mouseOver(setCountry, {covid: country, feature: feature.properties}),
             mouseout: mouseOut(setCountry)
         });
     }
@@ -61,19 +61,19 @@ const onEachFeature = (covidData, setCountry, mode) => {
 function Main(){
     const [covidData, setCovidData] = useState(null);
     const [country, setCountry] = useState(null);
+    const [geoData, setGeoData] = useState(null);
     const mapRef = useRef(null);
     const geoJsonRef = useRef(null);
 
     const {mode} = useContext(ModeContext);
 
-    if(!covidData){
-        (async () => {
-                const res = await fetchCovidData();
-                const data = await res.json();
-                setCovidData(data);
-            }
-        )();
-    }
+    useEffect(async() => {
+        const geo = await import('../../custom.geo.json');
+        const res = await fetchCovidData();
+        const covid = await res.json();
+        setCovidData(covid);
+        setGeoData(geo.default);
+    }, []);
 
     useEffect(() => {
         const selector = `.${style['map-container']}`;
@@ -99,13 +99,13 @@ function Main(){
     });
 
     useEffect(() => {
-        if(geoDataJson && covidData && mapRef.current){
-            geoJsonRef.current = L.geoJSON(geoDataJson, {
+        if(geoData && mapRef.current && !geoJsonRef.current && covidData){
+            geoJsonRef.current = L.geoJSON(geoData, {
                 style: mapStyle,
                 onEachFeature: onEachFeature(covidData, setCountry, mode)
             }).addTo(mapRef.current);
         }
-    }, [covidData]);
+    }, [covidData, geoData]);
 
     useEffect(() => {
         geoJsonRef.current?.eachLayer((layer) => {
