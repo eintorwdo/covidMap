@@ -29,7 +29,13 @@ const mouseOut = (setCountry) => {
         const stl = mapStyle();
         delete stl.fillColor;
         e.target.setStyle(stl);
-        setCountry(null);
+        let x = e.originalEvent.clientX;
+        let y = e.originalEvent.clientY;
+        const elementMouseIsOver = document.elementFromPoint(x, y);
+        const countryInfo = document.querySelector('#country-hover-popup');
+        if(!elementMouseIsOver !== countryInfo && !countryInfo?.contains(elementMouseIsOver)){
+            setCountry(null);
+        }
     }
 }
 
@@ -60,12 +66,12 @@ const onEachFeature = (covidData, setCountry, mode) => {
 
 function Main(){
     const [covidData, setCovidData] = useState(null);
-    const [country, setCountry] = useState(null);
+    // const [country, setCountry] = useState(null);
     const [geoData, setGeoData] = useState(null);
     const mapRef = useRef(null);
     const geoJsonRef = useRef(null);
 
-    const {mode} = useContext(ModeContext);
+    const {mode, country, setCountry} = useContext(ModeContext);
 
     useEffect(async() => {
         const geo = await import('../../custom.geo.json');
@@ -136,11 +142,14 @@ function Main(){
 
 export default function Map(){
     const [mode, setMode] = useState('cases');
+    const [country, setCountry] = useState(null);
 
     return(
         <ModeContext.Provider value={{
             mode,
-            setMode
+            setMode,
+            country,
+            setCountry
         }}>
             <Main />
         </ModeContext.Provider>

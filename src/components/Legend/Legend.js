@@ -8,7 +8,7 @@ export default function Legend(props){
     const [covidInfo, setCovidInfo] = useState(null);
     const legendRef = useRef(null);
 
-    const {mode, setMode} = useContext(ModeContext);
+    const {mode, setMode, setCountry} = useContext(ModeContext);
 
     useEffect(() => {
         let cases;
@@ -63,22 +63,22 @@ export default function Legend(props){
     useEffect(() => {
         const info = props.country ?
             (
-                <div className={style['legend-inner']}>
+                <div id='country-hover-popup' className={style['legend-inner']} onMouseLeave={()=>{setCountry(null)}}>
                     <ul className={style['legend-list']}>
                         <li>
                             <b>{props.country?.feature.name}</b>
                         </li>
                         <li>
-                            New cases: {props.country?.covid?.NewConfirmed}
+                            New cases: {props.country?.covid?.NewConfirmed?.toLocaleString()}
                         </li>
                         <li>
-                            Total cases: {props.country?.covid?.TotalConfirmed}
+                            Total cases: {props.country?.covid?.TotalConfirmed?.toLocaleString()}
                         </li>
                         <li>
-                            New deaths: {props.country?.covid?.NewDeaths}
+                            New deaths: {props.country?.covid?.NewDeaths?.toLocaleString()}
                         </li>
                         <li>
-                            Total deaths: {props.country?.covid?.TotalDeaths}
+                            Total deaths: {props.country?.covid?.TotalDeaths?.toLocaleString()}
                         </li>
                     </ul>
                 </div>
