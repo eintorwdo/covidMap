@@ -66,19 +66,21 @@ const onEachFeature = (covidData, setCountry, mode) => {
 
 function Main(){
     const [covidData, setCovidData] = useState(null);
-    // const [country, setCountry] = useState(null);
     const [geoData, setGeoData] = useState(null);
     const mapRef = useRef(null);
     const geoJsonRef = useRef(null);
 
     const {mode, country, setCountry} = useContext(ModeContext);
 
-    useEffect(async() => {
-        const geo = await import('../../custom.geo.json');
-        const res = await fetchCovidData();
-        const covid = await res.json();
-        setCovidData(covid);
-        setGeoData(geo.default);
+    useEffect(() => {
+        const fetchData = async () => {
+            const geo = await import('../../custom.geo.json');
+            const res = await fetchCovidData();
+            const covid = await res.json();
+            setCovidData(covid);
+            setGeoData(geo.default);
+        }
+        fetchData();
     }, []);
 
     useEffect(() => {
