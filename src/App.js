@@ -2,11 +2,10 @@ import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
-  Route,
-  Link
+  Route
 } from "react-router-dom";
 
-import Map from './components/Main/Main';
+import Map from './components/Map/Map';
 
 export default function App(){
     return(

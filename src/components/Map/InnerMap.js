@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
 import style from './style.module.css';
-// import geoData from '../../custom.geo.json';
 import Legend from '../Legend/Legend';
 import {ModeContext} from '../../providers/providers';
 import {getColor} from '../../common/common';
@@ -33,29 +32,42 @@ const mouseOut = (setCountry) => {
         let y = e.originalEvent.clientY;
         const elementMouseIsOver = document.elementFromPoint(x, y);
         const countryInfo = document.querySelector('#country-hover-popup');
-        if(!elementMouseIsOver !== countryInfo && !countryInfo?.contains(elementMouseIsOver)){
+        const labelsWrapper = document.querySelector('#labels-covid-wrapper');
+        if(!elementMouseIsOver == countryInfo || !labelsWrapper?.contains(elementMouseIsOver)){
             setCountry(null);
         }
     }
 }
 
 const fetchCovidData = async () => {
-    const json = await fetch('https://api.covid19api.com/summary');
+    const res = await fetch('https://api.covid19api.com/summary');
+    const json = await res.json();
     return json;
+}
+
+const findCountry = (covidData, feature) => {
+    const country = covidData?.Countries.find(el => {
+        const name = el.Country;  
+        return name.includes(feature.properties.name) ||
+                name.includes(feature.properties.formal_en) ||
+                el.CountryCode == feature.properties.iso_a2;
+    });
+    return country;
+}
+
+const setLayerStyle = (layer, country, mode) => {
+    if(country){
+        layer.setStyle({fillColor: getColor(country, mode)});
+    }
+    else{
+        layer.setStyle({fillColor: 'white'});
+    }
 }
 
 const onEachFeature = (covidData, setCountry, mode) => {
     return (feature, layer) => {
-        const country = covidData?.Countries.find(el => {
-            const name = el.Country;  
-            return name.includes(feature.properties.name) ||
-                    name.includes(feature.properties.formal_en) ||
-                    el.CountryCode == feature.properties.iso_a2;
-        });
-
-        if(country){
-            layer.setStyle({fillColor: getColor(country, mode)});
-        }
+        const country = findCountry(covidData, feature);
+        setLayerStyle(layer, country, mode);
 
         layer.on({
             mouseover: mouseOver(setCountry, {covid: country, feature: feature.properties}),
@@ -64,7 +76,7 @@ const onEachFeature = (covidData, setCountry, mode) => {
     }
 }
 
-function Main(){
+export default function InnerMap(){
     const [covidData, setCovidData] = useState(null);
     const [geoData, setGeoData] = useState(null);
     const mapRef = useRef(null);
@@ -76,8 +88,7 @@ function Main(){
         const fetchData = async () => {
             const geo = await import('../../custom.geo.json');
             const res = await fetchCovidData();
-            const covid = await res.json();
-            setCovidData(covid);
+            setCovidData(res);
             setGeoData(geo.default);
         }
         fetchData();
@@ -94,7 +105,7 @@ function Main(){
             mapRef.current.getPane('labels').style.zIndex = 650;
 
             L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
-                attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | COVID-19 data by <a href="https://covid19api.com/">COVID-19 API</a>',
                 subdomains: 'abcd',
                 minZoom: 0,
                 maxZoom: 20,
@@ -107,7 +118,7 @@ function Main(){
     });
 
     useEffect(() => {
-        if(geoData && mapRef.current && !geoJsonRef.current && covidData){
+        if(!geoJsonRef.current && mapRef.current && geoData && covidData){
             geoJsonRef.current = L.geoJSON(geoData, {
                 style: mapStyle,
                 onEachFeature: onEachFeature(covidData, setCountry, mode)
@@ -117,18 +128,8 @@ function Main(){
 
     useEffect(() => {
         geoJsonRef.current?.eachLayer((layer) => {
-            const country = covidData?.Countries.find(el => {
-                const name = el.Country;  
-                return name.includes(layer.feature.properties.name) ||
-                        name.includes(layer.feature.properties.formal_en) ||
-                        el.CountryCode == layer.feature.properties.iso_a2;
-            });
-            if(country){
-                layer.setStyle({fillColor: getColor(country, mode)});
-            }
-            else{
-                layer.setStyle({fillColor: 'white'});
-            }
+            const country = findCountry(covidData, layer.feature);
+            setLayerStyle(layer, country, mode);
         });
     }, [mode]);
 
@@ -139,21 +140,5 @@ function Main(){
             <Legend country={country}/>
         </div>
         </>
-    );
-}
-
-export default function Map(){
-    const [mode, setMode] = useState('cases');
-    const [country, setCountry] = useState(null);
-
-    return(
-        <ModeContext.Provider value={{
-            mode,
-            setMode,
-            country,
-            setCountry
-        }}>
-            <Main />
-        </ModeContext.Provider>
     );
 }
