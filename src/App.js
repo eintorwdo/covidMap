@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import Map from './components/Map/Map';
+import CumulativeGraph from './components/CumulativeGraph/CumulativeGraph';
 
 export default function App(){
     return(
@@ -14,6 +15,7 @@ export default function App(){
                 <Switch>
                     <Route path="/">
                         <Map />
+                        <CumulativeGraph />
                     </Route>
                 </Switch>
             </div>
