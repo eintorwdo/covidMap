@@ -3,6 +3,7 @@ import style from './style.module.css';
 import Legend from '../Legend/Legend';
 import {ModeContext} from '../../providers/providers';
 import {getColor} from '../../common/common';
+import ClipLoader from "react-spinners/ClipLoader";
 
 const mapStyle = () => {
     return {
@@ -81,6 +82,7 @@ export default function InnerMap(){
     const [geoData, setGeoData] = useState(null);
     const mapRef = useRef(null);
     const geoJsonRef = useRef(null);
+    const mapLabelsRef = useRef(null);
 
     const {mode, country, setCountry} = useContext(ModeContext);
 
@@ -99,12 +101,12 @@ export default function InnerMap(){
         const el = document.querySelector(selector);
 
         if(el && !mapRef.current){
-            mapRef.current = L.map(el, {minZoom: 2}).setView([51.505, -0.09], 2);
+            mapRef.current = L.map(el, {minZoom: 2, scrollWheelZoom: false}).setView([51.505, -0.09], 2);
             // mapRef.current.setMaxBounds(mapRef.current.getBounds());
             mapRef.current.createPane('labels');
             mapRef.current.getPane('labels').style.zIndex = 650;
 
-            L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
+            mapLabelsRef.current = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
                 attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | COVID-19 data by <a href="https://covid19api.com/">COVID-19 API</a>',
                 subdomains: 'abcd',
                 minZoom: 0,
@@ -113,12 +115,14 @@ export default function InnerMap(){
                 noWrap: true,
                 ext: 'png',
                 pane: 'labels'
-            }).addTo(mapRef.current);
+            });
         }
     });
 
     useEffect(() => {
         if(!geoJsonRef.current && mapRef.current && geoData && covidData){
+            mapLabelsRef.current.addTo(mapRef.current);
+
             geoJsonRef.current = L.geoJSON(geoData, {
                 style: mapStyle,
                 onEachFeature: onEachFeature(covidData, setCountry, mode)
@@ -137,6 +141,16 @@ export default function InnerMap(){
         <>
         <h1 className="header">COVID-19 dashboard</h1>
         <div className={style['map-container']} style={{position: 'relative'}}>
+            {covidData
+                ? ''
+                : <div className={style['spinner-wrapper']}>
+                    <ClipLoader 
+                        size={130}
+                        color={"#123abc"}
+                        loading={true}
+                    />
+                </div>
+            }
             <Legend country={country}/>
         </div>
         </>

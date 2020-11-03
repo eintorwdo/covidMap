@@ -2,6 +2,8 @@ import React, {useState, useEffect, useRef} from 'react';
 import Chart from 'chart.js';
 import Papa from 'papaparse';
 import style from './style.module.css';
+// import { css } from "@emotion/core";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const reduceData = (data) => {
     data = data.slice(1,-1)
@@ -81,7 +83,23 @@ export default function CumulativeGraph(){
                 type: 'bar',
                 data: getChartData(data, 'cases'),
                 options: {
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        xPadding: 12,
+                        yPadding: 12,
+                        position: 'nearest'
+                    },
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'month'
+                            },
+                            gridLines: {
+                                display: false
+                            }
+                        }]
+                    }
                 }
             });
         }
@@ -91,7 +109,16 @@ export default function CumulativeGraph(){
         <>
             <div className={style['chart-wrapper']}>
                 <h1 className="header">New cases per day</h1>
-                <canvas ref={wrapperRef} id="cases-chart" className="chart" width="400px" height="200px"></canvas>
+                {data
+                    ? <canvas ref={wrapperRef} id="cases-chart" className="chart" width="400px" height="200px"></canvas>
+                    : <div className={style['spinner-wrapper']}>
+                        <ClipLoader 
+                            size={130}
+                            color={"#123abc"}
+                            loading={true}
+                        />
+                    </div> 
+                }
             </div>
         </>
     );

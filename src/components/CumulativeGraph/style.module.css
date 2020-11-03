@@ -2,6 +2,21 @@
     margin: 0 auto;
     margin-top: 80px;
     width: 80%;
-    height: 400px;
+    height: 300px;
     position: relative;
+}
+
+.spinner-wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media screen 
+  and (max-device-width: 400px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+
+    .chart-wrapper{
+        margin-top: 150px;
+    }
 }
