@@ -1,12 +1,13 @@
 .chart-wrapper{
     margin: 0 auto;
     margin-top: 80px;
-    width: 80%;
+    /* width: 80%; */
     height: 300px;
     position: relative;
 }
 
 .spinner-wrapper{
+    height: 300px;
     display: flex;
     justify-content: center;
     align-items: center;

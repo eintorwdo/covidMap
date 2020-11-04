@@ -44,11 +44,13 @@ const getChartData = (data, mode = 'cases') => {
         labels: data.map(el => el.date),
         datasets: [{
             label: `New ${mode}`,
-            backgroundColor: "rgba(255,99,132,0.2)",
-            borderColor: "rgba(255,99,132,1)",
-            borderWidth: 2,
-            hoverBackgroundColor: "rgba(255,99,132,0.4)",
-            hoverBorderColor: "rgba(255,99,132,1)",
+            backgroundColor: mode === 'cases'
+                ? "rgba(255,99,132,1)"
+                : "rgba(3,165,252,1)",
+            borderWidth: 0,
+            hoverBackgroundColor: mode === 'deaths'
+                ? "rgba(255,99,132,1)"
+                : "rgba(3,165,252,1)",
             data: data.map(el => {
                 if(mode === 'cases') return el.newCases;
                 else if(mode === 'deaths') return el.newDeaths;
@@ -59,10 +61,36 @@ const getChartData = (data, mode = 'cases') => {
     return out;
 }
 
+const chartOptions = () => {
+    return {
+        maintainAspectRatio: false,
+        tooltips: {
+            xPadding: 12,
+            yPadding: 12,
+            position: 'nearest'
+        },
+        scales: {
+            xAxes: [{
+                type: 'time',
+                time: {
+                    unit: 'month'
+                },
+                gridLines: {
+                    display: false
+                },
+                barPercentage: 1,
+                categoryPercentage: 1
+            }]
+        }
+    };
+}
+
 export default function CumulativeGraph(){
     const [data, setData] = useState(null);
-    const chartRef = useRef(null);
-    const wrapperRef = useRef(null);
+    const casesChartRef = useRef(null);
+    const deathsChartRef = useRef(null);
+    const casesWrapperRef = useRef(null);
+    const deathsWrapperRef = useRef(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -76,41 +104,42 @@ export default function CumulativeGraph(){
     }, []);
 
     useEffect(() => {
-        const el = document.querySelector('#cases-chart');
-        if(data && el){
-            const ctx = el.getContext('2d');
-            chartRef.current = new Chart(ctx, {
+        const casesWrapper = document.querySelector('#cases-chart');
+        const deathsWrapper = document.querySelector('#deaths-chart');
+        if(data && casesWrapper && deathsWrapper){
+            const ctx1 = casesWrapper.getContext('2d');
+            casesChartRef.current = new Chart(ctx1, {
                 type: 'bar',
                 data: getChartData(data, 'cases'),
-                options: {
-                    maintainAspectRatio: false,
-                    tooltips: {
-                        xPadding: 12,
-                        yPadding: 12,
-                        position: 'nearest'
-                    },
-                    scales: {
-                        xAxes: [{
-                            type: 'time',
-                            time: {
-                                unit: 'month'
-                            },
-                            gridLines: {
-                                display: false
-                            }
-                        }]
-                    }
-                }
+                options: chartOptions()
+            });
+
+            const ctx2 = deathsWrapper.getContext('2d');
+            deathsChartRef.current = new Chart(ctx2, {
+                type: 'bar',
+                data: getChartData(data, 'deaths'),
+                options: chartOptions()
             });
         }
-    }, [data, wrapperRef]);
+    }, [data, casesChartRef, deathsWrapperRef]);
 
     return(
         <>
             <div className={style['chart-wrapper']}>
                 <h1 className="header">New cases per day</h1>
                 {data
-                    ? <canvas ref={wrapperRef} id="cases-chart" className="chart" width="400px" height="200px"></canvas>
+                    ? <canvas ref={casesWrapperRef} id="cases-chart" className="chart"></canvas>
+                    : <div className={style['spinner-wrapper']}>
+                        <ClipLoader 
+                            size={130}
+                            color={"#123abc"}
+                            loading={true}
+                        />
+                    </div> 
+                }
+                <h1 className="header">New deaths per day</h1>
+                {data
+                    ? <canvas ref={deathsWrapperRef} id="deaths-chart" className="chart"></canvas>
                     : <div className={style['spinner-wrapper']}>
                         <ClipLoader 
                             size={130}
