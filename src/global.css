@@ -1,0 +1,8 @@
+:global(.main-wrapper){
+    padding: 20px 50px;
+}
+
+:global(.header){
+    text-align: center;
+    font-family: 'Montserrat', sans-serif;
+}

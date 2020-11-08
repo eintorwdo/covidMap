@@ -47,27 +47,118 @@ const getChartData = (data, mode = 'cases') => {
             backgroundColor: mode === 'cases'
                 ? "rgba(255,99,132,1)"
                 : "rgba(3,165,252,1)",
-            borderWidth: 0,
             hoverBackgroundColor: mode === 'deaths'
                 ? "rgba(255,99,132,1)"
                 : "rgba(3,165,252,1)",
             data: data.map(el => {
                 if(mode === 'cases') return el.newCases;
                 else if(mode === 'deaths') return el.newDeaths;
-            })
+            }),
+            barPercentage: 1.0,
+            categoryPercentage: 1.0
         }]
     }
 
     return out;
 }
 
+const customTooltip = function(tooltipModel) {
+    // Tooltip Element
+    let tooltipEl = document.getElementById('chartjs-tooltip');
+    let arrow = document.getElementById('chartjs-tooltip-arrow');
+    let arrowBorder = document.getElementById('chartjs-tooltip-arrow-border');
+
+    // Create element on first render
+    if (!tooltipEl) {
+        tooltipEl = document.createElement('div');
+        tooltipEl.id = 'chartjs-tooltip';
+        tooltipEl.innerHTML = '<table></table>';
+        arrow = document.createElement('div');
+        arrow.id = 'chartjs-tooltip-arrow';
+        arrowBorder = document.createElement('div');
+        arrowBorder.id = 'chartjs-tooltip-arrow-border';
+        document.body.appendChild(arrow);
+        document.body.appendChild(tooltipEl);
+        document.body.appendChild(arrowBorder);
+    }
+
+    // Hide if no tooltip
+    if (tooltipModel.opacity === 0) {
+        tooltipEl.style.opacity = 0;
+        arrow.style.opacity = 0;
+        arrowBorder.style.opacity = 0;
+        return;
+    }
+
+    // Set caret Position
+    tooltipEl.classList.remove('above', 'below', 'no-transform');
+    if (tooltipModel.yAlign) {
+        tooltipEl.classList.add(tooltipModel.yAlign);
+    } else {
+        tooltipEl.classList.add('no-transform');
+    }
+
+    function getBody(bodyItem) {
+        return bodyItem.lines;
+    }
+
+    // Set Text
+    if (tooltipModel.body) {
+        var titleLines = tooltipModel.title || [];
+        var bodyLines = tooltipModel.body.map(getBody);
+
+        var innerHtml = '<thead>';
+
+        titleLines.forEach(function(title) {
+            innerHtml += '<tr><th>' + title + '</th></tr>';
+        });
+        innerHtml += '</thead><tbody>';
+
+        bodyLines.forEach(function(body, i) {
+            var colors = tooltipModel.labelColors[i];
+            var style = 'background:' + colors.backgroundColor;
+            style += '; border-color:' + colors.borderColor;
+            style += '; border-width: 2px';
+            var span = '<span style="' + style + '"></span>';
+            innerHtml += '<tr><td>' + span + body + '</td></tr>';
+        });
+        innerHtml += '</tbody>';
+
+        var tableRoot = tooltipEl.querySelector('table');
+        tableRoot.innerHTML = innerHtml;
+    }
+
+    // `this` will be the overall tooltip
+    let position = this._chart.canvas.getBoundingClientRect();
+    let xAxisHeight = this._chart.scales['x-axis-0'].height;
+    let maxTooltipLeft = position.left + window.pageXOffset + position.width - tooltipEl.offsetWidth/2 + 10;
+    let tooltipLeft = position.left + window.pageXOffset + tooltipModel.caretX;
+    console.log(maxTooltipLeft, tooltipLeft)
+
+    // Display, position, and set styles for font
+    tooltipEl.style.opacity = 1;
+    arrow.style.opacity = 1;
+    arrowBorder.style.opacity = 1;
+    tooltipEl.style.position = 'absolute';
+    tooltipEl.style.left = `${Math.min(maxTooltipLeft, tooltipLeft) - tooltipEl.offsetWidth/2}px`;
+    arrow.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 'px';
+    arrow.style.top = position.y + window.pageYOffset + position.height - xAxisHeight - 7 + 'px';
+    arrowBorder.style.left = arrow.style.left;
+    arrowBorder.style.top = arrow.style.top;
+    // tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY + 'px';
+    tooltipEl.style.top = position.y + window.pageYOffset + position.height - xAxisHeight + 13 + 'px';
+    tooltipEl.style.fontFamily = 'Montserrat';
+    tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
+    tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
+    tooltipEl.style.padding = tooltipModel.yPadding + 'px ' + tooltipModel.xPadding + 'px';
+}
+
 const chartOptions = () => {
     return {
         maintainAspectRatio: false,
         tooltips: {
-            xPadding: 12,
-            yPadding: 12,
-            position: 'nearest'
+            enabled: false,
+            custom: customTooltip
         },
         scales: {
             xAxes: [{
@@ -78,8 +169,9 @@ const chartOptions = () => {
                 gridLines: {
                     display: false
                 },
-                barPercentage: 1,
-                categoryPercentage: 1
+                ticks: {
+                    padding: 15
+                }
             }]
         }
     };

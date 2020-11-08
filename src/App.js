@@ -5,13 +5,15 @@ import {
   Route
 } from "react-router-dom";
 
+import './global.css';
+
 import Map from './components/Map/Map';
 import CumulativeGraph from './components/CumulativeGraph/CumulativeGraph';
 
 export default function App(){
     return(
         <Router>
-            <div>
+            <div className="main-wrapper">
                 <Switch>
                     <Route path="/">
                         <Map />

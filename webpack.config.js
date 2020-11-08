@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 const result = dotenv.config().parsed;
 
 module.exports = {
-    mode: 'production',
+    mode: 'development',
     entry: path.resolve(__dirname, 'src', 'index.js'),
     output: {
       path: path.resolve(__dirname, 'dist'),

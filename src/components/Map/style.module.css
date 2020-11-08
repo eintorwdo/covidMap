@@ -13,11 +13,6 @@
     transform: translateX(-50%) translateY(-50%);
 }
 
-:global(.header){
-    text-align: center;
-    font-family: 'Montserrat', sans-serif;
-}
-
 @media screen 
   and (max-device-width: 400px)
   and (-webkit-min-device-pixel-ratio: 2) {
