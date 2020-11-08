@@ -54,8 +54,8 @@ const getChartData = (data, mode = 'cases') => {
                 if(mode === 'cases') return el.newCases;
                 else if(mode === 'deaths') return el.newDeaths;
             }),
-            barPercentage: 1.0,
-            categoryPercentage: 1.0
+            barPercentage: 0.9,
+            categoryPercentage: 0.9
         }]
     }
 
@@ -133,7 +133,6 @@ const customTooltip = function(tooltipModel) {
     let xAxisHeight = this._chart.scales['x-axis-0'].height;
     let maxTooltipLeft = position.left + window.pageXOffset + position.width - tooltipEl.offsetWidth/2 + 10;
     let tooltipLeft = position.left + window.pageXOffset + tooltipModel.caretX;
-    console.log(maxTooltipLeft, tooltipLeft)
 
     // Display, position, and set styles for font
     tooltipEl.style.opacity = 1;
@@ -157,9 +156,15 @@ const chartOptions = () => {
     return {
         maintainAspectRatio: false,
         tooltips: {
+            mode: 'index',
+            intersect: false,
             enabled: false,
             custom: customTooltip
         },
+        // hover: {
+        //     mode: 'nearest',
+        //     intersect: true
+        // },
         scales: {
             xAxes: [{
                 type: 'time',
