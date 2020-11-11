@@ -3,9 +3,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const dotenv = require('dotenv');
 const result = dotenv.config().parsed;
+const argv = require('yargs/yargs')(process.argv.slice(2)).argv;
 
 module.exports = {
-    mode: 'development',
+    mode: argv.mode,
     entry: path.resolve(__dirname, 'src', 'index.js'),
     output: {
       path: path.resolve(__dirname, 'dist'),

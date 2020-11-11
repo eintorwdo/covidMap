@@ -14,6 +14,7 @@
 }
 
 :global(#chartjs-tooltip){
+    position: absolute;
     background-color: white;
     padding: 15px;
     border-radius: 4px;
@@ -22,9 +23,10 @@
     display: flex;
     justify-content: center;
     pointer-events: none;
+    font-family: 'Montserrat', sans-serif;
 }
 
-:global(#chartjs-tooltip-arrow){
+:global(#chartjs-tooltip-arrow-border){
     position: absolute;
     content: '';
     transform: translateX(-50%);
@@ -39,17 +41,17 @@
     z-index: 3;
 }
 
-:global(#chartjs-tooltip-arrow-border){
+:global(#chartjs-tooltip-arrow){
     position: absolute;
     content: '';
     transform: translateX(-50%);
     width: 0;
     height: 0;
     display: block;
-    border-top: 13px solid transparent;
-    border-left: 13px solid transparent;
-    border-right: 13px solid transparent;
-    border-bottom: 13px solid white;
+    border-top: 11px solid transparent;
+    border-left: 11px solid transparent;
+    border-right: 11px solid transparent;
+    border-bottom: 11px solid white;
     pointer-events: none;
     z-index: 4;
 }

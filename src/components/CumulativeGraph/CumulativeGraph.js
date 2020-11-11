@@ -104,27 +104,27 @@ const customTooltip = function(tooltipModel) {
 
     // Set Text
     if (tooltipModel.body) {
-        var titleLines = tooltipModel.title || [];
-        var bodyLines = tooltipModel.body.map(getBody);
+        const titleLines = tooltipModel.title || [];
+        const bodyLines = tooltipModel.body.map(getBody);
 
-        var innerHtml = '<thead>';
+        let innerHtml = '<thead>';
 
-        titleLines.forEach(function(title) {
-            innerHtml += '<tr><th>' + title + '</th></tr>';
+        titleLines.forEach((title) => {
+            innerHtml += `<tr><th> ${title} </th></tr>`;
         });
         innerHtml += '</thead><tbody>';
 
-        bodyLines.forEach(function(body, i) {
-            var colors = tooltipModel.labelColors[i];
-            var style = 'background:' + colors.backgroundColor;
-            style += '; border-color:' + colors.borderColor;
+        bodyLines.forEach((body, i) => {
+            const colors = tooltipModel.labelColors[i];
+            let style = `background: ${colors.backgroundColor}`;
+            style += `; border-color: ${colors.borderColor}`;
             style += '; border-width: 2px';
-            var span = '<span style="' + style + '"></span>';
+            const span = `<span style=" ${style} "></span>`;
             innerHtml += '<tr><td>' + span + body + '</td></tr>';
         });
         innerHtml += '</tbody>';
 
-        var tableRoot = tooltipEl.querySelector('table');
+        const tableRoot = tooltipEl.querySelector('table');
         tableRoot.innerHTML = innerHtml;
     }
 
@@ -132,21 +132,19 @@ const customTooltip = function(tooltipModel) {
     let position = this._chart.canvas.getBoundingClientRect();
     let xAxisHeight = this._chart.scales['x-axis-0'].height;
     let maxTooltipLeft = position.left + window.pageXOffset + position.width - tooltipEl.offsetWidth/2 + 10;
+    let minTooltipLeft = position.left + tooltipEl.offsetWidth/2 - 10;
     let tooltipLeft = position.left + window.pageXOffset + tooltipModel.caretX;
 
     // Display, position, and set styles for font
     tooltipEl.style.opacity = 1;
     arrow.style.opacity = 1;
     arrowBorder.style.opacity = 1;
-    tooltipEl.style.position = 'absolute';
-    tooltipEl.style.left = `${Math.min(maxTooltipLeft, tooltipLeft) - tooltipEl.offsetWidth/2}px`;
+    tooltipEl.style.left = `${Math.max(minTooltipLeft, Math.min(maxTooltipLeft, tooltipLeft)) - tooltipEl.offsetWidth/2}px`;
     arrow.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 'px';
-    arrow.style.top = position.y + window.pageYOffset + position.height - xAxisHeight - 7 + 'px';
     arrowBorder.style.left = arrow.style.left;
-    arrowBorder.style.top = arrow.style.top;
-    // tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY + 'px';
+    arrow.style.top = (position.y + window.pageYOffset + position.height - xAxisHeight - 5) + 'px';
+    arrowBorder.style.top = (position.y + window.pageYOffset + position.height - xAxisHeight - 8) + 'px';
     tooltipEl.style.top = position.y + window.pageYOffset + position.height - xAxisHeight + 13 + 'px';
-    tooltipEl.style.fontFamily = 'Montserrat';
     tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
     tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
     tooltipEl.style.padding = tooltipModel.yPadding + 'px ' + tooltipModel.xPadding + 'px';
@@ -161,10 +159,10 @@ const chartOptions = () => {
             enabled: false,
             custom: customTooltip
         },
-        // hover: {
-        //     mode: 'nearest',
-        //     intersect: true
-        // },
+        hover: {
+            mode: 'index',
+            intersect: false
+        },
         scales: {
             xAxes: [{
                 type: 'time',

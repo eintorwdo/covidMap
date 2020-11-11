@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack serve",
-    "build": "webpack",
+    "start": "webpack --mode=development serve",
+    "build": "webpack --mode=production",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
@@ -21,7 +21,8 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.2.0",
-    "react-spinners": "^0.9.0"
+    "react-spinners": "^0.9.0",
+    "yargs": "^16.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
