@@ -139,7 +139,6 @@ export default function InnerMap(){
 
     return(
         <>
-        <h1 className="header">COVID-19 dashboard</h1>
         <div className={style['map-container']} style={{position: 'relative'}}>
             {covidData
                 ? ''

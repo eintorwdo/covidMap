@@ -120,7 +120,9 @@ const customTooltip = function(tooltipModel) {
             style += `; border-color: ${colors.borderColor}`;
             style += '; border-width: 2px';
             const span = `<span style=" ${style} "></span>`;
-            innerHtml += '<tr><td>' + span + body + '</td></tr>';
+            body = body[0].split(':');
+            const number = parseInt(body[1]).toLocaleString();
+            innerHtml += `<tr><td> ${span} ${body[0]}: ${number} </td></tr>`;
         });
         innerHtml += '</tbody>';
 
@@ -223,7 +225,7 @@ export default function CumulativeGraph(){
             <div className={style['chart-wrapper']}>
                 <h1 className="header">New cases per day</h1>
                 {data
-                    ? <canvas ref={casesWrapperRef} id="cases-chart" className="chart"></canvas>
+                    ? <canvas ref={casesWrapperRef} id="cases-chart" className={style.chart}></canvas>
                     : <div className={style['spinner-wrapper']}>
                         <ClipLoader 
                             size={130}
@@ -234,7 +236,7 @@ export default function CumulativeGraph(){
                 }
                 <h1 className="header">New deaths per day</h1>
                 {data
-                    ? <canvas ref={deathsWrapperRef} id="deaths-chart" className="chart"></canvas>
+                    ? <canvas ref={deathsWrapperRef} id="deaths-chart" className={style.chart}></canvas>
                     : <div className={style['spinner-wrapper']}>
                         <ClipLoader 
                             size={130}

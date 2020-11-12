@@ -20,24 +20,3 @@ export const getColor = (country, mode) => {
     }
     return color;
 }
-
-export const csv2json = (csv) => {
-    const lines=csv.split("\n");
-    const result = [];
-
-    const headers=lines[0].split(",");
-
-    for(let i=1; i < lines.length; i++){
-
-        const obj = {};
-        const currentline = lines[i].split(",");
-
-        for(let j=0; j < headers.length; j++){
-            obj[`${headers[j].trim()}`] = currentline[j];
-        }
-
-        result.push(obj);
-    }
-
-    return result;
-}

@@ -1,7 +1,7 @@
 .chart-wrapper{
     margin: 0 auto;
     margin-top: 80px;
-    /* width: 80%; */
+    padding: 0 20px;
     height: 300px;
     position: relative;
 }
@@ -11,6 +11,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.chart{
+    margin-bottom: 40px;
 }
 
 :global(#chartjs-tooltip){
