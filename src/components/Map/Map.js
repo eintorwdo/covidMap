@@ -5,6 +5,7 @@ import InnerMap from './InnerMap';
 export default function Map(){
     const [mode, setMode] = useState('cases');
     const [country, setCountry] = useState(null);
+    const [countryClicked, setCountryClicked] = useState(false);
 
     return(
         <ModeContext.Provider value={{

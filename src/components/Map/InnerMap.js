@@ -15,27 +15,59 @@ const mapStyle = () => {
     };
 }
 
-const mouseOver = (setCountry, country) => {
+const mouseOver = (setCountry, country, countryClickedRef) => {
     return (e) => {
+        if(!countryClickedRef.current){
+            e.target.setStyle({
+                weight: 5
+            });
+
+            setCountry(country);
+        }
+    }
+}
+
+const mouseOut = (setCountry, countryClickedRef) => {
+    return (e) => {
+        if(!countryClickedRef.current){
+            const stl = mapStyle();
+            delete stl.fillColor;
+            e.target.setStyle(stl);
+            let x = e.originalEvent.clientX;
+            let y = e.originalEvent.clientY;
+            const elementMouseIsOver = document.elementFromPoint(x, y);
+            const countryInfo = document.querySelector('#country-hover-popup');
+            const labelsWrapper = document.querySelector('#labels-covid-wrapper');
+            if(!elementMouseIsOver == countryInfo || !labelsWrapper?.contains(elementMouseIsOver)){
+                setCountry(null);
+            }
+        }
+    }
+}
+
+const click = (setCountry, country, layer, clickedLayerRef, setCountryClicked) => {
+    return (e) => {
+        if(clickedLayerRef.current){
+            clickedLayerRef.current.setStyle({weight: 2})
+        }
+        clickedLayerRef.current = layer;
+
         e.target.setStyle({
             weight: 5
         });
         setCountry(country);
+        setCountryClicked(true);
+        L.DomEvent.stopPropagation(e);
     }
 }
 
-const mouseOut = (setCountry) => {
-    return (e) => {
-        const stl = mapStyle();
-        delete stl.fillColor;
-        e.target.setStyle(stl);
-        let x = e.originalEvent.clientX;
-        let y = e.originalEvent.clientY;
-        const elementMouseIsOver = document.elementFromPoint(x, y);
-        const countryInfo = document.querySelector('#country-hover-popup');
-        const labelsWrapper = document.querySelector('#labels-covid-wrapper');
-        if(!elementMouseIsOver == countryInfo || !labelsWrapper?.contains(elementMouseIsOver)){
-            setCountry(null);
+const onMapClick = (setCountryClicked, setCountry, clickedLayerRef) => {
+    return () => {
+        setCountryClicked(false);
+        setCountry(null);
+        if(clickedLayerRef.current){
+            clickedLayerRef.current.setStyle({weight: 2});
+            clickedLayerRef.current = null;
         }
     }
 }
@@ -65,14 +97,18 @@ const setLayerStyle = (layer, country, mode) => {
     }
 }
 
-const onEachFeature = (covidData, setCountry, mode) => {
+const onEachFeature = (covidData, setCountry, mode, countryClickedRef, clickedLayerRef, setCountryClicked) => {
     return (feature, layer) => {
-        const country = findCountry(covidData, feature);
-        setLayerStyle(layer, country, mode);
+        const country = {
+            covid: findCountry(covidData, feature),
+            feature: feature.properties
+        };
+        setLayerStyle(layer, country.covid, mode);
 
         layer.on({
-            mouseover: mouseOver(setCountry, {covid: country, feature: feature.properties}),
-            mouseout: mouseOut(setCountry)
+            mouseover: mouseOver(setCountry, country, countryClickedRef),
+            mouseout: mouseOut(setCountry, countryClickedRef),
+            click: click(setCountry, country, layer, clickedLayerRef, setCountryClicked)
         });
     }
 }
@@ -83,6 +119,9 @@ export default function InnerMap(){
     const mapRef = useRef(null);
     const geoJsonRef = useRef(null);
     const mapLabelsRef = useRef(null);
+    const [countryClicked, setCountryClicked] = useState(false);
+    const countryClickedRef = useRef(countryClicked);
+    const clickedLayerRef = useRef(null);
 
     const {mode, country, setCountry} = useContext(ModeContext);
 
@@ -101,7 +140,8 @@ export default function InnerMap(){
         const el = document.querySelector(selector);
 
         if(el && !mapRef.current){
-            mapRef.current = L.map(el, {minZoom: 2, scrollWheelZoom: false}).setView([51.505, -0.09], 2);
+            mapRef.current = L.map(el, {minZoom: 2, scrollWheelZoom: false}).setView([51.505, -0.09], 2)
+                .on('click', onMapClick(setCountryClicked, setCountry, clickedLayerRef));
             // mapRef.current.setMaxBounds(mapRef.current.getBounds());
             mapRef.current.createPane('labels');
             mapRef.current.getPane('labels').style.zIndex = 650;
@@ -125,7 +165,7 @@ export default function InnerMap(){
 
             geoJsonRef.current = L.geoJSON(geoData, {
                 style: mapStyle,
-                onEachFeature: onEachFeature(covidData, setCountry, mode)
+                onEachFeature: onEachFeature(covidData, setCountry, mode, countryClickedRef, clickedLayerRef, setCountryClicked)
             }).addTo(mapRef.current);
         }
     }, [covidData, geoData]);
@@ -136,6 +176,10 @@ export default function InnerMap(){
             setLayerStyle(layer, country, mode);
         });
     }, [mode]);
+
+    useEffect(() => {
+        countryClickedRef.current = countryClicked;
+    }, [countryClicked]);
 
     return(
         <>
@@ -150,7 +194,7 @@ export default function InnerMap(){
                     />
                 </div>
             }
-            <Legend country={country}/>
+            <Legend country={country} countryClicked={countryClicked}/>
         </div>
         </>
     );
