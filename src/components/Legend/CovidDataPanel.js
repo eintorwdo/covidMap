@@ -1,34 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import style from './style.module.css';
+
+import {ModeContext} from '../../providers/providers';
 
 export default function CovidDataPanel(props){
     const [covidInfo, setCovidInfo] = useState(null);
+    const {country} = useContext(ModeContext);
 
     useEffect(() => {
-        const info = props.country ?
+        const info = country ?
             (
                 <div id='country-hover-popup' className={style['legend-inner']}>
                     <ul className={style['legend-list']}>
                         <li key='1'>
-                            <b>{props.country?.feature.name}</b>
+                            <b>{country?.feature.name}</b>
                         </li>
                         <li key='2'>
-                            New cases: {props.country.covid?.NewConfirmed?.toLocaleString()}
+                            New cases: {country.covid?.NewConfirmed?.toLocaleString()}
                         </li>
                         <li key='3'>
-                            Total cases: {props.country.covid?.TotalConfirmed?.toLocaleString()}
+                            Total cases: {country.covid?.TotalConfirmed?.toLocaleString()}
                         </li>
                         <li key='4'>
-                            New deaths: {props.country.covid?.NewDeaths?.toLocaleString()}
+                            New deaths: {country.covid?.NewDeaths?.toLocaleString()}
                         </li>
                         <li key='5'>
-                            Total deaths: {props.country.covid?.TotalDeaths?.toLocaleString()}
+                            Total deaths: {country.covid?.TotalDeaths?.toLocaleString()}
                         </li>
                     </ul>
                 </div>
             ) : '';
         setCovidInfo(info);
-    }, [props.country]);
+    }, [country]);
 
     return(
         <>

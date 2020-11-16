@@ -1,5 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import ProviderWrapper from './ProviderWrapper';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<ProviderWrapper />, document.getElementById('root'));

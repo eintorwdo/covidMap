@@ -13,19 +13,16 @@ const onMouseLeave = (setCountry, countryClicked) => {
     }
 }
 
-export default function Legend(props){
-    const {setCountry} = useContext(ModeContext);
-
-    useEffect(() => {
-    }, [props.countryClicked])
+export default function Legend(){
+    const {setCountry, countryClicked} = useContext(ModeContext);
 
     return (
         <>
         <div className={style['bottom-left']}>
             <ToggleModePanel />
         </div>
-        <div id='labels-covid-wrapper' className={style['bottom-right']} onMouseLeave={onMouseLeave(setCountry, props.countryClicked)}>
-            <CovidDataPanel country={props.country}/>
+        <div id='labels-covid-wrapper' className={style['bottom-right']} onMouseLeave={onMouseLeave(setCountry, countryClicked)}>
+            <CovidDataPanel />
             <Labels />
         </div>
         </>
