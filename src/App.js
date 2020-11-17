@@ -14,16 +14,22 @@ import Navbar from './components/Navbar/Navbar';
 export default function App(){
     const[sticky, setSticky] = useState(false);
 
+    const onScroll = () => {
+        const body = document.querySelector('body');
+        if(body.scrollTop > 55){
+            setSticky(true);
+        }
+        else{
+            setSticky(false);
+        }
+    };
+
     useEffect(() => {
-        window.addEventListener('scroll', () => {
-            const body = document.querySelector('body');
-            if(body.scrollTop > 55){
-                setSticky(true);
-            }
-            else{
-                setSticky(false);
-            }
-        }, {passive: true});
+        window.addEventListener('scroll', onScroll, {passive: true});
+
+        return () => {
+            window.removeEventListener('scroll', onScroll, {passive: true});
+        }
     }, []);
 
     return(

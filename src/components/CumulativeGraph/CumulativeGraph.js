@@ -1,38 +1,58 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
 import Chart from 'chart.js';
 import Papa from 'papaparse';
 import style from './style.module.css';
 // import { css } from "@emotion/core";
 import ClipLoader from "react-spinners/ClipLoader";
+import {ModeContext} from '../../providers/providers';
 
-const reduceData = (data) => {
+const findCountry = (name, countryCode, feature) => {
+    return name.toLowerCase() == feature.name.toLowerCase() ||
+        name.toLowerCase() == feature.formal_en.toLowerCase() ||
+        countryCode == feature.iso_a2;
+};
+
+const sumCases = (el, res) => {
+    const newDate = el[0];
+    const index = res.findIndex((item) => {
+        return item.date == newDate;
+    });
+
+    if(index !== -1){
+        const day = res[index];
+        res[index] = {
+            ...day,
+            cumulativeCases: day.cumulativeCases + parseInt(el[5]),
+            cumulativeDeaths: day.cumulativeDeaths + parseInt(el[7]),
+            newCases: day.newCases + parseInt(el[4]),
+            newDeaths: day.newDeaths + parseInt(el[6])
+        }
+    }
+    else{
+        res.push({
+            date: newDate,
+            cumulativeCases: parseInt(el[5]),
+            cumulativeDeaths: parseInt(el[7]),
+            newCases: parseInt(el[4]),
+            newDeaths: parseInt(el[6])
+        });
+    }
+}
+
+const reduce = (data, country) => {
     data = data.slice(1,-1)
     const res = [];
 
-    for(let el of data){
-        const newDate = el[0];
-        const index = res.findIndex((item) => {
-            return item.date == newDate;
-        });
-
-        if(index !== -1){
-            const day = res[index];
-            res[index] = {
-                ...day,
-                cumulativeCases: day.cumulativeCases + parseInt(el[5]),
-                cumulativeDeaths: day.cumulativeDeaths + parseInt(el[7]),
-                newCases: day.newCases + parseInt(el[4]),
-                newDeaths: day.newDeaths + parseInt(el[6])
+    if(country){
+        for(let el of data){
+            if(findCountry(el[2], el[1], country.feature)){
+                sumCases(el, res);
             }
         }
-        else{
-            res.push({
-                date: newDate,
-                cumulativeCases: parseInt(el[5]),
-                cumulativeDeaths: parseInt(el[7]),
-                newCases: parseInt(el[4]),
-                newDeaths: parseInt(el[6])
-            });
+    }
+    else{
+        for(let el of data){
+            sumCases(el, res);
         }
     }
 
@@ -183,42 +203,72 @@ const chartOptions = () => {
 }
 
 export default function CumulativeGraph(){
+    const [whoCsv, setWhoCsv] = useState(null);
     const [data, setData] = useState(null);
     const casesChartRef = useRef(null);
     const deathsChartRef = useRef(null);
     const casesWrapperRef = useRef(null);
     const deathsWrapperRef = useRef(null);
 
+    const {country, countryClicked} = useContext(ModeContext);
+
     useEffect(() => {
         const fetchData = async () => {
             let whoData = await fetch('https://ClassicImpureProperties.eintorwdo.repl.co');
             whoData = await whoData.text();
             whoData = Papa.parse(whoData);
-            const graphData = reduceData(whoData.data);
+            const graphData = reduce(whoData.data);
+            setWhoCsv(whoData);
             setData(graphData);
         }
         fetchData();
     }, []);
 
     useEffect(() => {
+        if(country && countryClicked && whoCsv){
+            const graphData = reduce(whoCsv.data, country);
+            setData(graphData);
+        }
+        else if(!countryClicked && whoCsv){
+            const graphData = reduce(whoCsv.data);
+            setData(graphData);
+        }
+    }, [countryClicked]);
+
+    useEffect(() => {
+        if(country && countryClicked && whoCsv){
+            const graphData = reduce(whoCsv.data, country);
+            setData(graphData);
+        }
+    }, [country]);
+
+    useEffect(() => {
         const casesWrapper = document.querySelector('#cases-chart');
         const deathsWrapper = document.querySelector('#deaths-chart');
         if(data && casesWrapper && deathsWrapper){
-            const ctx1 = casesWrapper.getContext('2d');
-            casesChartRef.current = new Chart(ctx1, {
-                type: 'bar',
-                data: getChartData(data, 'cases'),
-                options: chartOptions()
-            });
+            if(!casesChartRef.current && !deathsChartRef.current){
+                const ctx1 = casesWrapper.getContext('2d');
+                casesChartRef.current = new Chart(ctx1, {
+                    type: 'bar',
+                    data: getChartData(data, 'cases'),
+                    options: chartOptions()
+                });
 
-            const ctx2 = deathsWrapper.getContext('2d');
-            deathsChartRef.current = new Chart(ctx2, {
-                type: 'bar',
-                data: getChartData(data, 'deaths'),
-                options: chartOptions()
-            });
+                const ctx2 = deathsWrapper.getContext('2d');
+                deathsChartRef.current = new Chart(ctx2, {
+                    type: 'bar',
+                    data: getChartData(data, 'deaths'),
+                    options: chartOptions()
+                });
+            }
+            else{
+                casesChartRef.current.data = getChartData(data, 'cases');
+                deathsChartRef.current.data = getChartData(data, 'deaths');
+                casesChartRef.current.update();
+                deathsChartRef.current.update();
+            }
         }
-    }, [data, casesChartRef, deathsWrapperRef]);
+    }, [data]);
 
     return(
         <>

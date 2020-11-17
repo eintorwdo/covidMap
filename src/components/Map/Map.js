@@ -82,8 +82,8 @@ const findCountry = (covidData, feature) => {
     const country = covidData?.Countries.find(el => {
         const name = el.Country;  
         return name.includes(feature.properties.name) ||
-                name.includes(feature.properties.formal_en) ||
-                el.CountryCode == feature.properties.iso_a2;
+            name.includes(feature.properties.formal_en) ||
+            el.CountryCode == feature.properties.iso_a2;
     });
     return country;
 }
