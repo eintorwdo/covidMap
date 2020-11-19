@@ -33,12 +33,8 @@ const mouseOut = (setCountry, countryClickedRef) => {
             const stl = mapStyle();
             delete stl.fillColor;
             e.target.setStyle(stl);
-            let x = e.originalEvent.clientX;
-            let y = e.originalEvent.clientY;
-            const elementMouseIsOver = document.elementFromPoint(x, y);
-            const countryInfo = document.querySelector('#country-hover-popup');
             const labelsWrapper = document.querySelector('#labels-covid-wrapper');
-            if(!elementMouseIsOver == countryInfo || !labelsWrapper?.contains(elementMouseIsOver)){
+            if(!labelsWrapper.contains(e.originalEvent.toElement)){
                 setCountry(null);
             }
         }
@@ -62,12 +58,14 @@ const click = (setCountry, country, layer, clickedLayerRef, setCountryClicked) =
 }
 
 const onMapClick = (setCountryClicked, setCountry, clickedLayerRef) => {
-    return () => {
-        setCountryClicked(false);
-        setCountry(null);
-        if(clickedLayerRef.current){
-            clickedLayerRef.current.setStyle({weight: 2});
-            clickedLayerRef.current = null;
+    return (e) => {
+        if(!e.originalEvent.path.find(el => el == document.querySelector('#toggle-panel'))){
+            setCountryClicked(false);
+            setCountry(null);
+            if(clickedLayerRef.current){
+                clickedLayerRef.current.setStyle({weight: 2});
+                clickedLayerRef.current = null;
+            }
         }
     }
 }

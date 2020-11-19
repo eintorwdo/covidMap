@@ -1,4 +1,4 @@
-import React, {useState, useContext, useEffect} from 'react';
+import React, {useState, useContext, useEffect, useRef} from 'react';
 import {ModeContext} from '../../providers/providers';
 import style from './style.module.css';
 
@@ -9,10 +9,16 @@ export default function Navbar(props){
     useEffect(() => {
         let div;
         if(country && countryClicked){
-            div = <h2 className="header">{country?.feature?.formal_en}</h2>
+            div = 
+            <div>
+                <h2 className={`header ${style['name-wrapper']}`}>
+                    <img src={`https://www.countryflags.io/${country.feature.iso_a2}/shiny/64.png`}/>
+                    {country?.feature?.formal_en}
+                </h2>
+            </div>
         }
         else{
-            div = <h2 className="header">Global</h2>
+            div = <h2 className="header" style={{lineHeight: '2em'}}>Global</h2>
         }
 
         setCountryName(div);
@@ -22,7 +28,9 @@ export default function Navbar(props){
         <>
             <div className={`${style.navbar} ${props.sticky ? style.sticky : ''}`}>
                 <h1 className="header">COVID-19 dashboard</h1>
-                {countryName}
+                <div className={style['navbar-bottom']}>
+                    {countryName}
+                </div>
             </div>
         </>
     );

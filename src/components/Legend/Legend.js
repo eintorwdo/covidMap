@@ -18,7 +18,7 @@ export default function Legend(){
 
     return (
         <>
-        <div className={style['bottom-left']}>
+        <div className={style['bottom-left']} id='toggle-panel'>
             <ToggleModePanel />
         </div>
         <div id='labels-covid-wrapper' className={style['bottom-right']} onMouseLeave={onMouseLeave(setCountry, countryClicked)}>

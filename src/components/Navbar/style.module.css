@@ -12,3 +12,21 @@
     -moz-box-shadow: 0px 10px 18px -1px rgba(0,0,0,0.75);
     box-shadow: 0px 10px 18px -1px rgba(0,0,0,0.75);
 }
+
+.navbar-bottom{
+    display: flex;
+    /* justify-content: space-between; */
+    justify-content: center;
+    width: 50%;
+    margin: 0 auto;
+}
+
+.name-wrapper{
+    display: flex;
+    align-items: center;
+}
+
+.name-wrapper img{
+    height: 2em;
+    margin-right: 10px;
+}
