@@ -52,7 +52,7 @@
 }
 
 h2{
-    font-size: 1.2rem!important;
+    /* font-size: 1.2rem!important; */
     font-weight: 600;
     margin: 5px 0;
 }
@@ -76,14 +76,26 @@ h2{
     margin: 5px 0;
     padding: 5px 0;
     border: solid 1px black;
+    transition: background-color 0.2s ease-in;
 }
 
-.button-inner:hover{
+.deaths-button .button-inner:hover{
     cursor: pointer;
+    background-color: #8bd0f5;
 }
 
-.button .active{
-    background-color: black;
+.cases-button .button-inner:hover{
+    cursor: pointer;
+    background-color: #ff8d89;
+}
+
+.cases-button .active{
+    background-color: rgb(255, 0, 0)!important;
+    color: white;
+}
+
+.deaths-button .active{
+    background-color: #03a5fc!important;
     color: white;
 }
 
@@ -120,14 +132,14 @@ h2{
   and (-webkit-min-device-pixel-ratio: 2) {
 
     .legend-inner h2{
-        font-size: 1.4rem!important;
+        font-size: 1.6rem!important;
     }
 
     .legend-inner h3{
-        font-size: 1.3rem;
+        font-size: 1.4rem;
     }
 
     .legend-inner li{
-        font-size: 1.1rem;
+        font-size: 1.2rem;
     }
 }

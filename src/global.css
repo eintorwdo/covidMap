@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+:global(html){
+    scroll-behavior: smooth;
+}
+
 :global(.header){
     text-align: center;
     font-family: 'Montserrat', sans-serif;

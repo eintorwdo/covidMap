@@ -12,7 +12,7 @@ export default function Labels(){
         let labels;
 
         if(mode == 'cases'){
-            cases = [0, 99, 499, 1199, 3999];
+            cases = [0, 99, 999, 2999, 9999];
             labels = cases.map((el) => {
                 return {
                     NewConfirmed: el

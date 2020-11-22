@@ -205,10 +205,9 @@ const chartOptions = () => {
 export default function CumulativeGraph(){
     const [whoCsv, setWhoCsv] = useState(null);
     const [data, setData] = useState(null);
+    const [globalData, setGlobalData] = useState(null);
     const casesChartRef = useRef(null);
     const deathsChartRef = useRef(null);
-    const casesWrapperRef = useRef(null);
-    const deathsWrapperRef = useRef(null);
 
     const {country, countryClicked} = useContext(ModeContext);
 
@@ -220,6 +219,7 @@ export default function CumulativeGraph(){
             const graphData = reduce(whoData.data);
             setWhoCsv(whoData);
             setData(graphData);
+            setGlobalData(graphData);
         }
         fetchData();
     }, []);
@@ -230,8 +230,7 @@ export default function CumulativeGraph(){
             setData(graphData);
         }
         else if(!countryClicked && whoCsv){
-            const graphData = reduce(whoCsv.data);
-            setData(graphData);
+            setData(globalData);
         }
     }, [countryClicked]);
 
@@ -272,30 +271,30 @@ export default function CumulativeGraph(){
 
     return(
         <>
-            <div className={style['chart-wrapper']}>
-                <h1 className="header">New cases per day</h1>
-                {data
-                    ? <canvas ref={casesWrapperRef} id="cases-chart" className={style.chart}></canvas>
-                    : <div className={style['spinner-wrapper']}>
-                        <ClipLoader 
-                            size={130}
-                            color={"#123abc"}
-                            loading={true}
-                        />
-                    </div> 
-                }
-                <h1 className="header">New deaths per day</h1>
-                {data
-                    ? <canvas ref={deathsWrapperRef} id="deaths-chart" className={style.chart}></canvas>
-                    : <div className={style['spinner-wrapper']}>
-                        <ClipLoader 
-                            size={130}
-                            color={"#123abc"}
-                            loading={true}
-                        />
-                    </div> 
-                }
-            </div>
+        <div className={style['chart-wrapper']} id="chart-wrapper">
+            <h1 className="header">New cases per day</h1>
+            {data
+                ? <canvas id="cases-chart" className={style.chart}></canvas>
+                : <div className={style['spinner-wrapper']}>
+                    <ClipLoader 
+                        size={130}
+                        color={"#123abc"}
+                        loading={true}
+                    />
+                </div> 
+            }
+            <h1 className="header">New deaths per day</h1>
+            {data
+                ? <canvas id="deaths-chart" className={style.chart}></canvas>
+                : <div className={style['spinner-wrapper']}>
+                    <ClipLoader 
+                        size={130}
+                        color={"#123abc"}
+                        loading={true}
+                    />
+                </div> 
+            }
+        </div>
         </>
     );
 }

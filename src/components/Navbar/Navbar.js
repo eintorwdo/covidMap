@@ -18,7 +18,10 @@ export default function Navbar(props){
             </div>
         }
         else{
-            div = <h2 className="header" style={{lineHeight: '2em'}}>Global</h2>
+            div =
+            <div>
+                <h2 className="header" style={{lineHeight: '2em'}}>Global</h2>
+            </div> 
         }
 
         setCountryName(div);
@@ -30,6 +33,14 @@ export default function Navbar(props){
                 <h1 className="header">COVID-19 dashboard</h1>
                 <div className={style['navbar-bottom']}>
                     {countryName}
+                    <a href="#chart-wrapper" className={`${style['button-link']}`}>
+                        <div className={`${style['graphs-button']}`}>
+                            <i className="far fa-chart-bar"></i>
+                            <h2 className="header">
+                                Graphs
+                            </h2>
+                        </div>
+                    </a>
                 </div>
             </div>
         </>
