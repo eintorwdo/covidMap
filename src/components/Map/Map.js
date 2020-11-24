@@ -59,7 +59,9 @@ const click = (setCountry, country, layer, clickedLayerRef, setCountryClicked) =
 
 const onMapClick = (setCountryClicked, setCountry, clickedLayerRef) => {
     return (e) => {
-        if(!e.originalEvent.path.find(el => el == document.querySelector('#toggle-panel'))){
+        const togglePanel = document.querySelector('#toggle-panel');
+        const labels = document.querySelector('#labels-covid-wrapper');
+        if(!e.originalEvent.path.find(el => el == togglePanel || el == labels)){
             setCountryClicked(false);
             setCountry(null);
             if(clickedLayerRef.current){
