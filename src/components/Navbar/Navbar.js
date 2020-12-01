@@ -3,7 +3,7 @@ import {ModeContext} from '../../providers/providers';
 import style from './style.module.css';
 
 export default function Navbar(props){
-    const {country, countryClicked} = useContext(ModeContext);
+    const {country, countryClicked, countryNames} = useContext(ModeContext);
     const [countryName, setCountryName] = useState(null);
 
     useEffect(() => {

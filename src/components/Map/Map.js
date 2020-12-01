@@ -16,7 +16,7 @@ const mapStyle = () => {
 }
 
 const mouseOver = (setCountry, country, countryClickedRef) => {
-    return (e) => {
+    return (e) => {   
         if(!countryClickedRef.current){
             e.target.setStyle({
                 weight: 5
@@ -97,29 +97,29 @@ const setLayerStyle = (layer, country, mode) => {
     }
 }
 
-const onEachFeature = (covidData, setCountry, mode, countryClickedRef, clickedLayerRef, setCountryClicked) => {
-    return (feature, layer) => {
+function onEachFeature(covidData, countryClickedRef, clickedLayerRef){
+    return async (feature, layer) => {
         const country = {
             covid: findCountry(covidData, feature),
             feature: feature.properties
         };
-        setLayerStyle(layer, country.covid, mode);
+        setLayerStyle(layer, country.covid, this.mode);
 
         layer.on({
-            mouseover: mouseOver(setCountry, country, countryClickedRef),
-            mouseout: mouseOut(setCountry, countryClickedRef),
-            click: click(setCountry, country, layer, clickedLayerRef, setCountryClicked)
+            mouseover: mouseOver(this.setCountry, country, countryClickedRef),
+            mouseout: mouseOut(this.setCountry, countryClickedRef),
+            click: click(this.setCountry, country, layer, clickedLayerRef, this.setCountryClicked)
         });
     }
 }
 
 export default function Map(){
-    const {mode, setCountry, map, setMap, countryClicked, setCountryClicked} = useContext(ModeContext);
+    const context = useContext(ModeContext);
 
     const [covidData, setCovidData] = useState(null);
     const [geoData, setGeoData] = useState(null);
     const [geoJson, setGeoJson] = useState(null);
-    const countryClickedRef = useRef(countryClicked);
+    const countryClickedRef = useRef(context.countryClicked);
     const clickedLayerRef = useRef(null);
 
     useEffect(() => {
@@ -136,20 +136,20 @@ export default function Map(){
         const selector = `.${style['map-container']}`;
         const el = document.querySelector(selector);
 
-        if(el && !map){
+        if(el && !context.map){
             const _map = L.map(el, {minZoom: 2, scrollWheelZoom: false}).setView([51.505, -0.09], 2)
-                .on('click', onMapClick(setCountryClicked, setCountry, clickedLayerRef));
+                .on('click', onMapClick(context.setCountryClicked, context.setCountry, clickedLayerRef));
             // _map.setMaxBounds(mapRef.current.getBounds());
             _map.createPane('labels');
             _map.getPane('labels').style.zIndex = 650;
 
-            setMap(_map);
+            context.setMap(_map);
         }
     });
 
     useEffect(() => {
-        if(!geoJson && map && geoData && covidData){
-            const _map = map;
+        if(!geoJson && context.map && geoData && covidData){
+            const _map = context.map;
 
             const mapLabels = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
                 attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | COVID-19 data by <a href="https://covid19api.com/">COVID-19 API</a>',
@@ -165,10 +165,16 @@ export default function Map(){
 
             const _geoJson = L.geoJSON(geoData, {
                 style: mapStyle,
-                onEachFeature: onEachFeature(covidData, setCountry, mode, countryClickedRef, clickedLayerRef, setCountryClicked)
+                onEachFeature: onEachFeature.call(context, covidData, countryClickedRef, clickedLayerRef)
             }).addTo(_map);
 
-            setMap(_map);
+            const names = [];
+            _geoJson.eachLayer((layer) => {
+                names.push(layer.feature.properties.name);
+            });
+
+            context.setCountryNames(names);
+            context.setMap(_map);
             setGeoJson(_geoJson);
         }
     }, [covidData, geoData]);
@@ -178,16 +184,16 @@ export default function Map(){
             const _geoJson = geoJson;
             _geoJson.eachLayer((layer) => {
                 const country = findCountry(covidData, layer.feature);
-                setLayerStyle(layer, country, mode);
+                setLayerStyle(layer, country, context.mode);
             });
 
             setGeoJson(_geoJson);
         }
-    }, [mode]);
+    }, [context.mode]);
 
     useEffect(() => {
-        countryClickedRef.current = countryClicked;
-    }, [countryClicked]);
+        countryClickedRef.current = context.countryClicked;
+    }, [context.countryClicked]);
 
     return(
         <>
