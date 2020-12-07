@@ -79,7 +79,7 @@ const fetchCovidData = async () => {
 }
 
 const findCountry = (covidData, feature) => {
-    const country = covidData?.Countries.find(el => {
+    const country = covidData?.Countries?.find(el => {
         const name = el.Country;  
         return name.includes(feature.properties.name) ||
             name.includes(feature.properties.formal_en) ||

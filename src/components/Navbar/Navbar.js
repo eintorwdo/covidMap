@@ -6,12 +6,35 @@ export default function Navbar(props){
     const {country, countryClicked, countryNames} = useContext(ModeContext);
     const [countryName, setCountryName] = useState(null);
     const [dataList, setDataList] = useState(null);
+    const inputRef = useRef(null);
     const dataListRef = useRef(null);
 
-    const onImputChange = (e) => {
+    const onClick = (e) => {
+        inputRef.current.value = e.target.textContent
+        const form = document.querySelector('form');
+        form.dispatchEvent(new Event('submit'));
+        inputRef.current.blur();
+    }
+
+    const onSubmit = (e) => {
+        e.preventDefault();
+        const data = inputRef.current.value;
+        inputRef.current.value = '';
+        console.log(data);
+        setDataList([]);
+    }
+
+    const onFocus = () => {
+        dataListRef.current.classList.add(style.visible);
+    }
+
+    const onBlur = () => {
+        dataListRef.current.classList.remove(style.visible);
+    }
+
+    const onInputChange = (e) => {
         if(e.target.value.length > 0){
             const hints = [];
-            let options;
 
             for(let el of countryNames){
                 if(el.toLowerCase().startsWith(e.target.value.toLowerCase())){
@@ -25,10 +48,6 @@ export default function Navbar(props){
             setDataList([]);
         }
     }
-
-    useEffect(() => {
-        console.log(dataList)
-    }, [dataList])
 
     useEffect(() => {
         let div;
@@ -56,12 +75,18 @@ export default function Navbar(props){
             <div className={`${style.navbar} ${props.sticky ? style.sticky : ''}`}>
                 <h1 className="header">COVID-19 dashboard</h1>
                 <div className={style['navbar-bottom']}>
-                    <input className={style['input-search']} autoComplete="off" type="text" name="country" list="dataList" placeholder="Search by country" onChange={onImputChange}/>
-                    <datalist id="dataList">
-                        {dataList?.map((el, i) => {
-                            return <option key={i} value={el}></option>
-                        })}
-                    </datalist>
+                    
+                    <form onSubmit={onSubmit} style={{position: 'relative'}}>
+                        <input ref={inputRef} className={style['input-search']} autoComplete="off" type="search" name="country" placeholder="Search by country"
+                            onChange={onInputChange} onFocus={onFocus} onBlur={onBlur}/>
+                        <ul ref={dataListRef} className={style['data-list']}
+                            style={{top: inputRef.current?.offsetHeight, maxHeight: `calc(100vh - ${dataListRef.current?.getBoundingClientRect().top}px)`}}>
+                            {dataList?.map((el, i) => {
+                                return <li key={i} onMouseDown={(e) => e.preventDefault()} onClick={onClick}>{el}</li>
+                            })}
+                        </ul>
+                    </form>
+                    
                     {countryName}
                     <a href="#chart-wrapper" className={`${style['button-link']}`}>
                         <div className={`${style['graphs-button']}`}>

@@ -84,6 +84,35 @@
     text-align: center;
 }
 
+.data-list{
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0;
+    list-style: none;
+    margin: 0 auto;
+    background-color: rgb(65, 65, 65);
+    color: white;
+    width: 100%;
+    border-radius: 3px;
+    overflow-y: auto;
+    display: none;
+}
+
+.data-list li{
+    padding: 8px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.data-list li:hover{
+    cursor: pointer;
+    background-color: rgb(104, 104, 104);
+}
+
+.visible{
+    display: block;
+}
+
 @media screen 
   and (max-device-width: 500px)
   and (-webkit-min-device-pixel-ratio: 2) {
