@@ -3,7 +3,7 @@ import {ModeContext} from '../../providers/providers';
 import style from './style.module.css';
 
 export default function Navbar(props){
-    const {country, countryClicked, countryNames} = useContext(ModeContext);
+    const {country, countryClicked, countryNames, geoJson} = useContext(ModeContext);
     const [countryName, setCountryName] = useState(null);
     const [dataList, setDataList] = useState(null);
     const inputRef = useRef(null);
@@ -20,8 +20,12 @@ export default function Navbar(props){
         e.preventDefault();
         const data = inputRef.current.value;
         inputRef.current.value = '';
-        console.log(data);
         setDataList([]);
+        geoJson.eachLayer((layer) => {
+            if(layer.feature.properties.name.toLowerCase() == data.toLowerCase()){
+                layer.fire('click');
+            }
+        });
     }
 
     const onFocus = () => {
@@ -88,14 +92,14 @@ export default function Navbar(props){
                     </form>
                     
                     {countryName}
-                    <a href="#chart-wrapper" className={`${style['button-link']}`}>
+                    {/* <a href="#chart-wrapper" className={`${style['button-link']}`}>
                         <div className={`${style['graphs-button']}`}>
                             <i className="far fa-chart-bar"></i>
                             <h2 className="header">
                                 Graphs
                             </h2>
                         </div>
-                    </a>
+                    </a> */}
                 </div>
             </div>
         </>

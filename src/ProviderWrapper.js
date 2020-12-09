@@ -8,6 +8,7 @@ export default function ProviderWrapper(){
     const [map, setMap] = useState(null);
     const [countryClicked, setCountryClicked] = useState(false);
     const [countryNames, setCountryNames] = useState([]);
+    const [geoJson, setGeoJson] = useState(null);
 
     return(
         <ModeContext.Provider value={{
@@ -20,7 +21,9 @@ export default function ProviderWrapper(){
             countryClicked,
             setCountryClicked,
             countryNames,
-            setCountryNames
+            setCountryNames,
+            geoJson,
+            setGeoJson
         }}>
             <App />
         </ModeContext.Provider>

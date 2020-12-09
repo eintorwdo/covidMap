@@ -41,7 +41,7 @@ const mouseOut = (setCountry, countryClickedRef) => {
     }
 }
 
-const click = (setCountry, country, layer, clickedLayerRef, setCountryClicked) => {
+const click = (setCountry, country, layer, clickedLayerRef, setCountryClicked, map) => {
     return (e) => {
         if(clickedLayerRef.current){
             clickedLayerRef.current.setStyle({weight: 2})
@@ -51,6 +51,8 @@ const click = (setCountry, country, layer, clickedLayerRef, setCountryClicked) =
         e.target.setStyle({
             weight: 5
         });
+        // map.setView(e.target.getCenter(), 4);
+        map.fitBounds(layer.getBounds());
         setCountry(country);
         setCountryClicked(true);
         L.DomEvent.stopPropagation(e);
@@ -108,7 +110,7 @@ function onEachFeature(covidData, countryClickedRef, clickedLayerRef){
         layer.on({
             mouseover: mouseOver(this.setCountry, country, countryClickedRef),
             mouseout: mouseOut(this.setCountry, countryClickedRef),
-            click: click(this.setCountry, country, layer, clickedLayerRef, this.setCountryClicked)
+            click: click(this.setCountry, country, layer, clickedLayerRef, this.setCountryClicked, this.map)
         });
     }
 }
@@ -118,7 +120,6 @@ export default function Map(){
 
     const [covidData, setCovidData] = useState(null);
     const [geoData, setGeoData] = useState(null);
-    const [geoJson, setGeoJson] = useState(null);
     const countryClickedRef = useRef(context.countryClicked);
     const clickedLayerRef = useRef(null);
 
@@ -137,6 +138,7 @@ export default function Map(){
         const el = document.querySelector(selector);
 
         if(el && !context.map){
+            L.Control.prototype._refocusOnMap = function _refocusOnMap() {};
             const _map = L.map(el, {minZoom: 2, scrollWheelZoom: false}).setView([51.505, -0.09], 2)
                 .on('click', onMapClick(context.setCountryClicked, context.setCountry, clickedLayerRef));
             // _map.setMaxBounds(mapRef.current.getBounds());
@@ -148,7 +150,7 @@ export default function Map(){
     });
 
     useEffect(() => {
-        if(!geoJson && context.map && geoData && covidData){
+        if(!context.geoJson && context.map && geoData && covidData){
             const _map = context.map;
 
             const mapLabels = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.{ext}', {
@@ -175,19 +177,19 @@ export default function Map(){
 
             context.setCountryNames(names);
             context.setMap(_map);
-            setGeoJson(_geoJson);
+            context.setGeoJson(_geoJson);
         }
     }, [covidData, geoData]);
 
     useEffect(() => {
-        if(geoJson){
-            const _geoJson = geoJson;
+        if(context.geoJson){
+            const _geoJson = context.geoJson;
             _geoJson.eachLayer((layer) => {
                 const country = findCountry(covidData, layer.feature);
                 setLayerStyle(layer, country, context.mode);
             });
 
-            setGeoJson(_geoJson);
+            context.setGeoJson(_geoJson);
         }
     }, [context.mode]);
 
