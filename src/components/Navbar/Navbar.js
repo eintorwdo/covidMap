@@ -3,7 +3,7 @@ import {ModeContext} from '../../providers/providers';
 import style from './style.module.css';
 
 export default function Navbar(props){
-    const {country, countryClicked, countryNames, geoJson} = useContext(ModeContext);
+    const {country, countryClicked, countryNames, geoJson, setCountryClicked, setCountry} = useContext(ModeContext);
     const [countryName, setCountryName] = useState(null);
     const [dataList, setDataList] = useState(null);
     const inputRef = useRef(null);
@@ -53,12 +53,19 @@ export default function Navbar(props){
         }
     }
 
+    const resetMap = () => {
+        setCountry(null);
+        setCountryClicked(false);
+    }
+
     useEffect(() => {
         let div;
         if(country && countryClicked){
             div = 
             <div>
                 <h2 className={`header ${style['name-wrapper']}`}>
+                    <span className={style.global} onClick={resetMap}>Global</span>
+                    <i className="fas fa-chevron-right" style={{marginLeft: '10px'}}></i>
                     <img src={`https://www.countryflags.io/${country.feature.iso_a2}/shiny/64.png`}/>
                     {country?.feature?.formal_en}
                 </h2>

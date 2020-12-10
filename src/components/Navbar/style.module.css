@@ -28,6 +28,15 @@
     margin-bottom: 10px;
 }
 
+.global{
+    color: rgb(0, 16, 165);
+}
+
+.global:hover{
+    cursor: pointer;
+    color: rgb(0, 102, 185);
+}
+
 .name-wrapper{
     display: flex;
     align-items: center;
@@ -36,7 +45,7 @@
 
 .name-wrapper img{
     height: 2em;
-    margin-right: 10px;
+    margin: 0 10px;
 }
 
 .graphs-button{

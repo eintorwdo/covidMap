@@ -51,7 +51,6 @@ const click = (setCountry, country, layer, clickedLayerRef, setCountryClicked, m
         e.target.setStyle({
             weight: 5
         });
-        // map.setView(e.target.getCenter(), 4);
         map.fitBounds(layer.getBounds());
         setCountry(country);
         setCountryClicked(true);
@@ -195,6 +194,14 @@ export default function Map(){
 
     useEffect(() => {
         countryClickedRef.current = context.countryClicked;
+    }, [context.countryClicked]);
+
+    useEffect(() => {
+        if(!context.countryClicked && clickedLayerRef.current){
+            clickedLayerRef.current.setStyle({weight: 2});
+            clickedLayerRef.current = null;
+            context.map.setView([51.505, -0.09], 2);
+        }
     }, [context.countryClicked]);
 
     return(
