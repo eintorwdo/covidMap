@@ -1,6 +1,6 @@
 .chart-wrapper{
     margin: 0 auto;
-    margin-top: 60px;
+    /* margin-top: 60px; */
     padding: 0 20px;
     height: 300px;
     position: relative;
@@ -60,6 +60,10 @@
     border-bottom: 11px solid white;
     pointer-events: none;
     z-index: 4;
+}
+
+:global(#chart-wrapper2){
+    margin-bottom: 40px;
 }
 
 @media screen 

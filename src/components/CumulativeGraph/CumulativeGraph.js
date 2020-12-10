@@ -271,29 +271,31 @@ export default function CumulativeGraph(){
 
     return(
         <>
-        <div className={style['chart-wrapper']} id="chart-wrapper">
             <h1 className="header">New cases per day</h1>
-            {data
-                ? <canvas id="cases-chart" className={style.chart}></canvas>
-                : <div className={style['spinner-wrapper']}>
-                    <ClipLoader 
-                        size={130}
-                        color={"#123abc"}
-                        loading={true}
-                    />
-                </div> 
-            }
+            <div className={style['chart-wrapper']} id="chart-wrapper1">
+                {data
+                    ? <canvas id="cases-chart" className={style.chart}></canvas>
+                    : <div className={style['spinner-wrapper']}>
+                        <ClipLoader 
+                            size={130}
+                            color={"#123abc"}
+                            loading={true}
+                        />
+                    </div> 
+                }
+            </div>
             <h1 className="header">New deaths per day</h1>
-            {data
-                ? <canvas id="deaths-chart" className={style.chart}></canvas>
-                : <div className={style['spinner-wrapper']}>
-                    <ClipLoader 
-                        size={130}
-                        color={"#123abc"}
-                        loading={true}
-                    />
-                </div> 
-            }
+            <div className={style['chart-wrapper']} id="chart-wrapper2">
+                {data
+                    ? <canvas id="deaths-chart" className={style.chart}></canvas>
+                    : <div className={style['spinner-wrapper']}>
+                        <ClipLoader 
+                            size={130}
+                            color={"#123abc"}
+                            loading={true}
+                        />
+                    </div> 
+                }
         </div>
         </>
     );
