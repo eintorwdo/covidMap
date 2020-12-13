@@ -119,6 +119,7 @@ export default function Map(){
 
     const [covidData, setCovidData] = useState(null);
     const [geoData, setGeoData] = useState(null);
+    const [minZoom, setMinZoom] = useState(null);
     const countryClickedRef = useRef(context.countryClicked);
     const clickedLayerRef = useRef(null);
 
@@ -130,15 +131,19 @@ export default function Map(){
             setGeoData(geo.default);
         }
         fetchData();
+
+        if(window.innerWidth < 1500 && window.devicePixelRatio > 1){
+            setMinZoom(3);
+        }
     }, []);
 
     useEffect(() => {
         const selector = `.${style['map-container']}`;
         const el = document.querySelector(selector);
 
-        if(el && !context.map){
+        if(el && !context.map && minZoom){
             L.Control.prototype._refocusOnMap = function _refocusOnMap() {};
-            const _map = L.map(el, {minZoom: 2, scrollWheelZoom: false}).setView([51.505, -0.09], 2)
+            const _map = L.map(el, {minZoom: 2, scrollWheelZoom: false}).setView([51.505, -0.09], minZoom)
                 .on('click', onMapClick(context.setCountryClicked, context.setCountry, clickedLayerRef));
             // _map.setMaxBounds(mapRef.current.getBounds());
             _map.createPane('labels');
@@ -200,7 +205,7 @@ export default function Map(){
         if(!context.countryClicked && clickedLayerRef.current){
             clickedLayerRef.current.setStyle({weight: 2});
             clickedLayerRef.current = null;
-            context.map.setView([51.505, -0.09], 2);
+            context.map.setView([51.505, -0.09], minZoom || 2);
         }
     }, [context.countryClicked]);
 

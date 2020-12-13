@@ -6,6 +6,7 @@ export default function Navbar(props){
     const {country, countryClicked, countryNames, geoJson, setCountryClicked, setCountry} = useContext(ModeContext);
     const [countryName, setCountryName] = useState(null);
     const [dataList, setDataList] = useState(null);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const inputRef = useRef(null);
     const dataListRef = useRef(null);
 
@@ -59,15 +60,29 @@ export default function Navbar(props){
     }
 
     useEffect(() => {
+        window.addEventListener('resize', () => {
+            setWindowWidth(window.innerWidth);
+        });
+
+        return () => {
+            window.removeEventListener('resize', updateSize);
+        }
+    }, []);
+
+    useEffect(() => {
         let div;
         if(country && countryClicked){
             div = 
-            <div>
+            <div className={`${style['header-wrapper']}`}>
                 <h2 className={`header ${style['name-wrapper']}`}>
                     <span className={style.global} onClick={resetMap}>Global</span>
                     <i className="fas fa-chevron-right" style={{marginLeft: '10px'}}></i>
                     <img src={`https://www.countryflags.io/${country.feature.iso_a2}/shiny/64.png`}/>
-                    {country?.feature?.formal_en}
+                    {windowWidth < 1500
+                        ?
+                        country?.feature?.name
+                        : country?.feature?.formal_en
+                    }
                 </h2>
             </div>
         }
@@ -79,7 +94,7 @@ export default function Navbar(props){
         }
 
         setCountryName(div);
-    }, [country, countryClicked]);
+    }, [country, countryClicked, windowWidth]);
 
     return(
         <>
@@ -99,14 +114,6 @@ export default function Navbar(props){
                     </form>
                     
                     {countryName}
-                    {/* <a href="#chart-wrapper" className={`${style['button-link']}`}>
-                        <div className={`${style['graphs-button']}`}>
-                            <i className="far fa-chart-bar"></i>
-                            <h2 className="header">
-                                Graphs
-                            </h2>
-                        </div>
-                    </a> */}
                 </div>
             </div>
         </>

@@ -26,6 +26,8 @@
     width: 50%;
     margin: 0 auto;
     margin-bottom: 10px;
+    /* overflow: hidden;
+    white-space: nowrap; */
 }
 
 .global{
@@ -37,10 +39,18 @@
     color: rgb(0, 102, 185);
 }
 
+.header-wrapper{
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 90vw;
+}
+
 .name-wrapper{
     display: flex;
     align-items: center;
     white-space: nowrap;
+    max-width: 100vw;
+    padding: 0 10px;
 }
 
 .name-wrapper img{
@@ -124,8 +134,12 @@
 }
 
 @media screen 
-  and (max-device-width: 500px)
+  and (max-device-width: 600px)
   and (-webkit-min-device-pixel-ratio: 2) {
+
+    .navbar-bottom{
+        width: 90%;
+    }
 
     .navbar h1{
         font-size: 3rem;

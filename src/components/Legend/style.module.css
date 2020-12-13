@@ -132,14 +132,14 @@ h2{
   and (-webkit-min-device-pixel-ratio: 2) {
 
     .legend-inner h2{
-        font-size: 1.6rem!important;
+        font-size: 1.8rem!important;
     }
 
     .legend-inner h3{
-        font-size: 1.4rem;
+        font-size: 1.6rem;
     }
 
-    .legend-inner li{
-        font-size: 1.2rem;
+    .legend-list li{
+        font-size: 1.5rem;
     }
 }
