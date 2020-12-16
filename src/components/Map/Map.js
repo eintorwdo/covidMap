@@ -74,9 +74,23 @@ const onMapClick = (setCountryClicked, setCountry, clickedLayerRef) => {
 }
 
 const fetchCovidData = async () => {
-    const res = await fetch('https://api.covid19api.com/summary');
-    const json = await res.json();
-    return json;
+    try{
+        const res = await fetch('https://api.covid19api.com/summary');
+        if(res.status === 200){
+            const json = await res.json();
+            return json;
+        }
+        else{
+            const res = await fetch('https://classicimpureproperties.eintorwdo.repl.co/covidapi');
+            const json = await res.json();
+            return json;
+        }
+    }
+    catch(e){
+        console.log(e);
+        return null;
+    }
+
 }
 
 const findCountry = (covidData, feature) => {
