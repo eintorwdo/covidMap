@@ -7,8 +7,8 @@ import ClipLoader from "react-spinners/ClipLoader";
 import {ModeContext} from '../../providers/providers';
 
 const findCountry = (name, countryCode, feature) => {
-    return name.toLowerCase() == feature.name.toLowerCase() ||
-        name.toLowerCase() == feature.formal_en.toLowerCase() ||
+    return name.toLowerCase() == feature.name?.toLowerCase() ||
+        name.toLowerCase() == feature.formal_en?.toLowerCase() ||
         countryCode == feature.iso_a2;
 };
 
